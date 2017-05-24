@@ -128,7 +128,7 @@ public abstract class Graph {
 			list.add(getNeighbors(i).size() + getInNeighbors(i).size());
 		}
 		Collections.sort(list);
-		//return list;
+		Collections.reverse(list);
 		return list;
 	}
 	

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import util.GraphLoader;
+
 /** A class that implements a directed graph. 
  * The graph may have self-loops, parallel edges. 
  * Vertices are labeled by integers 0 .. n-1
@@ -43,7 +45,30 @@ public class GraphAdjMatrix extends Graph {
 			adjMatrix = newAdjMatrix;
 		}
 	}
-	
+	private static int[][] mulMat(int[][] a, int [][] b){
+		//Assumption: two square matrices
+		int n = a.length;
+		int[][] ans = new int[n][n];
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				//System.out.println();
+				for(int k=0;k<n;k++){
+					ans[i][j] += a[i][k] * b[k][j];
+					//System.out.println(ans[i][j] + " = " + a[i][k] + " * " + b[k][j]);
+				}
+			}
+		}
+		return ans;
+	}
+	private static void printMatrix(int[][] M){
+		int n = M.length;
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				System.out.print(M[i][j]+"\t");
+			}
+			System.out.println();
+		}
+	}
 	/** 
 	 * Implement the abstract method for adding an edge.
 	 * Allows for multiple edges between two points:
@@ -106,17 +131,15 @@ public class GraphAdjMatrix extends Graph {
 	public List<Integer> getDistance2(int v) {
 		// XXX Implement this method in week 2
 		int n = getNumVertices();
-		int[][] twoHopMatrix = new int[n][n];
-		for(int i=0;i<n;i++){
-			for(int j=0;j<n;j++){
-				for(int k=0;k<n;k++){
-					twoHopMatrix[i][j] =+ adjMatrix[i][k] * adjMatrix[k][j];
-				}
-			}
-		}
+		int[][] twoHopMatrix = mulMat(adjMatrix, adjMatrix);
 		ArrayList<Integer> twoHopList = new ArrayList<Integer>();
 		for(int i=0;i<n;i++){
-			twoHopList.add(twoHopMatrix[v][i]);
+			int val = twoHopMatrix[v][i];
+			if(val!=0){
+				for(int j=0;j<val;j++){
+					twoHopList.add(i);
+				}
+			}
 		}
 		return twoHopList;
 	}
@@ -137,5 +160,18 @@ public class GraphAdjMatrix extends Graph {
 		}
 		return s;
 	}
+	/*
+	public static void main (String[] args) {
+		int[][] a = {{1,0,1},{0,1,0},{1,1,0}};
+		System.out.println("****");
+		System.out.println("Adj Matrix:");
+		printMatrix(a);
+		int[][] ans = mulMat(a,a);
+		
+		System.out.println("****");
+		System.out.println("Ans Matrix:");
+		printMatrix(ans);
+	}
+	*/
 
 }
