@@ -40,9 +40,7 @@ public class Maze {
 	 * 
 	 * */
 	public Maze(int width, int height) {
-		cells = new MazeNode[height][width];
-		this.width = width;
-		this.height = height;
+		initialize(width,height);
 	}
 
 	/**
@@ -54,7 +52,6 @@ public class Maze {
 		cells = new MazeNode[height][width];
 		this.width = width;
 		this.height = height;
-
 	}
 
 	/**
