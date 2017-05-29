@@ -69,25 +69,45 @@ public class Maze {
 	 * edge. There is an edge between any two adjacent nodes up, down, left or
 	 * right.
 	 */
+	private void addAllExistingNeighbors(MazeNode n){
+		int row = n.getRow();
+		int col = n.getColumn();
+		if (n != null) {
+			if (row > 0 && cells[row - 1][col] != null) {
+				n.addNeighbor(cells[row - 1][col]);
+			}
+			if (col > 0 && cells[row][col - 1] != null) {
+				n.addNeighbor(cells[row][col - 1]);
+			}
+			if (row < cells.length - 1 && cells[row + 1][col] != null) {
+				n.addNeighbor(cells[row + 1][col]);
+			}
+			if (col < cells[row].length - 1 && cells[row][col + 1] != null) {
+				n.addNeighbor(cells[row][col + 1]);
+			}
+		}
+	}
+	
 	public void linkEdges() {
 		int numRows = cells.length;
 		for (int row = 0; row < numRows; row++) {
 			int numCols = cells[row].length;
 			for (int col = 0; col < numCols; col++) {
-				if (cells[row][col] != null) {
-					if (row > 0 && cells[row - 1][col] != null) {
-						cells[row][col].addNeighbor(cells[row - 1][col]);
-					}
-					if (col > 0 && cells[row][col - 1] != null) {
-						cells[row][col].addNeighbor(cells[row][col - 1]);
-					}
-					if (row < numRows - 1 && cells[row + 1][col] != null) {
-						cells[row][col].addNeighbor(cells[row + 1][col]);
-					}
-					if (col < numCols - 1 && cells[row][col + 1] != null) {
-						cells[row][col].addNeighbor(cells[row][col + 1]);
-					}
-				}
+//				if (cells[row][col] != null) {
+//					if (row > 0 && cells[row - 1][col] != null) {
+//						cells[row][col].addNeighbor(cells[row - 1][col]);
+//					}
+//					if (col > 0 && cells[row][col - 1] != null) {
+//						cells[row][col].addNeighbor(cells[row][col - 1]);
+//					}
+//					if (row < numRows - 1 && cells[row + 1][col] != null) {
+//						cells[row][col].addNeighbor(cells[row + 1][col]);
+//					}
+//					if (col < numCols - 1 && cells[row][col + 1] != null) {
+//						cells[row][col].addNeighbor(cells[row][col + 1]);
+//					}
+//				}
+				addAllExistingNeighbors(cells[row][col]);
 			}
 		}
 	}
@@ -134,7 +154,7 @@ public class Maze {
 	}
 
 	/**
-	 * Clear (reset) the maze so that it will not disply a path
+	 * Clear (reset) the maze so that it will not display a path
 	 * from start to goal.
 	 */
 	public void clearPath() {
