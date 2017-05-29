@@ -24,11 +24,10 @@ import util.GraphLoader;
  */
 public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
-	
-	
 	/** 
 	 * Create a new empty MapGraph 
 	 */
+	
 	public MapGraph()
 	{
 		// TODO: Implement in this constructor in WEEK 3
