@@ -7,11 +7,10 @@
  */
 package roadgraph;
 
-
 import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Consumer;
-
 import geography.GeographicPoint;
 import util.GraphLoader;
 
@@ -23,14 +22,17 @@ import util.GraphLoader;
  *
  */
 public class MapGraph {
+	private HashMap<GeographicPoint, MapNode> Map;
+	
+	
 	//TODO: Add your member variables here in WEEK 3
 	/** 
 	 * Create a new empty MapGraph 
-	 */
-	
+	 */	
 	public MapGraph()
 	{
 		// TODO: Implement in this constructor in WEEK 3
+		Map = new HashMap<GeographicPoint, MapNode>();
 	}
 	
 	/**
@@ -39,8 +41,8 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
+		//Returns size of graph map
+		return Map.size();
 	}
 	
 	/**
@@ -48,9 +50,9 @@ public class MapGraph {
 	 * @return The vertices in this graph as GeographicPoints
 	 */
 	public Set<GeographicPoint> getVertices()
-	{
-		//TODO: Implement this method in WEEK 3
-		return null;
+	{	
+		//Returns the keySet for the graph map i.e. the geographic points for the vertices
+		return Map.keySet();
 	}
 	
 	/**
@@ -59,11 +61,13 @@ public class MapGraph {
 	 */
 	public int getNumEdges()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
-	}
-
-	
+		//Returns total number of edges in graph. Accumulates number of out Edges for each node
+		int numEdges = 0;
+		for(GeographicPoint key : Map.keySet()){
+			numEdges =+ Map.get(key).getNumOutEdges();
+		}
+		return numEdges;
+	}	
 	
 	/** Add a node corresponding to an intersection at a Geographic Point
 	 * If the location is already in the graph or null, this method does 
@@ -74,8 +78,14 @@ public class MapGraph {
 	 */
 	public boolean addVertex(GeographicPoint location)
 	{
-		// TODO: Implement this method in WEEK 3
-		return false;
+		if(location == null){
+			System.out.println("Error in location parameter");
+		}
+		else if(!Map.containsKey(location)){
+			Map.put(location,new MapNode(location));
+			return true; //Returns true if added
+		}	
+		return false; //Returns false if null (with error msg) or if map already has location
 	}
 	
 	/**
@@ -93,8 +103,8 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 
-		//TODO: Implement this method in WEEK 3
-		
+		//Add out bound edge to map node in graph at 'from' location
+		Map.get(from).addOutPath(to, roadName, roadType);
 	}
 	
 
