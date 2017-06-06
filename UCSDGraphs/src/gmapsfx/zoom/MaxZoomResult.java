@@ -31,15 +31,15 @@ public class MaxZoomResult extends JavascriptObject {
         this.status = status;
     }
     
+    public int getMaxZoom() {
+        return (int) getJSObject().getMember("zoom");
+    }
+    
     public MaxZoomStatus getStatus() {
         if (status == null) {
             status = MaxZoomStatus.valueOf((String) getJSObject().getMember("status"));
         }
         return status;
-    }
-    
-    public int getMaxZoom() {
-        return (int) getJSObject().getMember("zoom");
     }
     
 }

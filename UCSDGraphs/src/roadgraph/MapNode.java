@@ -5,11 +5,11 @@ import geography.GeographicPoint;
 
 public class MapNode {
 	private GeographicPoint loc;
-	private List<MapEdge> adjList; //List of out-Neighbors
+	private HashMap<GeographicPoint,MapEdge> adjList; //List of out-Neighbors
 	
 	public MapNode(GeographicPoint loc){
 		this.loc = loc;
-		this.adjList = new ArrayList<MapEdge>();
+		this.adjList = new HashMap<GeographicPoint,MapEdge>();
 	}
 	
 	public GeographicPoint getLoc(){
@@ -17,12 +17,10 @@ public class MapNode {
 	}
 	
 	public List<GeographicPoint> getNeighbors(){
-		//Returns all neighbor locations, using this node as a start point
+		//Returns all neighbor locations that share a map edge using this node as a start point
 		List<GeographicPoint> list = new ArrayList<GeographicPoint>();
-		for(MapEdge mE : adjList){
-			//if(mE.getStart().distance(loc) == 0)
-				list.add(mE.getEnd());
-		}
+		//System.out.println("Debugging: |\n" + adjList.keySet().toString() + "\n");
+		list.addAll(adjList.keySet());
 		return list;
 	}
 	
@@ -31,42 +29,9 @@ public class MapNode {
 	}
 	
 	public void addPath(GeographicPoint other, String name, String type){
-		//Adds a named map edge connecting this node and another
-		adjList.add(new MapEdge(this.loc, other, name, type, this.loc.distance(other)));
-	}
-	
-//Following can be implemented in case adjacency list is for a directed graph
-//	public int getNumOutEdges(){
-//		//Returns number of out bound Edges
-//		int numEdges=0;
-//		for(MapEdge e:adjList){
-//			//If distance between the start location of the edge and the location of this node is zero increment
-//			if(loc.distance(e.getStart()) != 0.0){
-//				numEdges++;
-//			}
-//		}
-//		return numEdges;
-//	}
-//	
-//	public int getNumInEdges(){
-//		//Returns number of in bound Edges
-//		int numEdges=0;
-//		for(MapEdge e:adjList){
-//			//If distance between the end location of the edge and the location of this node is zero increment
-//			if(loc.distance(e.getEnd()) != 0.0){
-//				numEdges++;
-//			}
-//		}
-//		return numEdges;
-//	}
-//	
-//	public void addOutPath(GeographicPoint to, String name, String type){
-//		//Adds a named map edge path from this node to another node (locations)
-//		adjList.add(new MapEdge(this.loc, to, name, type, this.loc.distance(to)));
-//	}
-//	public void addInPath(GeographicPoint from, String name, String type){
-//		//Adds a named map edge path from another node to this node (locations)
-//		adjList.add(new MapEdge(from, this.loc, name, type, from.distance(this.loc)));
-//	}
-	
+		//Adds a named map edge connecting this node and another node
+		MapEdge mE = new MapEdge(this.loc, other, name, type, this.loc.distance(other));
+		adjList.put(other,mE);
+		//System.out.println(mE.toString());
+	}	
 }

@@ -66,6 +66,15 @@ public class JavascriptArray extends JavascriptObject {
         return checkInteger(invokeJavascript("lastIndexOf", obj), -1);
     }
     
+    /** Get the length of the array. This returns the value from the underlying 
+     * Javascrpt object.
+     * 
+     * @return 
+     */
+    public int length() {
+        return checkInteger(getProperty("length"), 0);
+    }
+    
     //pop() 	Removes the last element of an array, and returns that element
     public Object pop() {
         //Object obj = jsObject.getSlot(jsLen - 1);
@@ -90,6 +99,8 @@ public class JavascriptArray extends JavascriptObject {
         invokeJavascript("reverse");
     }
     
+    //slice() 	Selects a part of an array, and returns the new array
+    
     //shift() 	Removes the first element of an array, and returns that element
     public Object shift() {
         Object obj = invokeJavascript("shift");
@@ -98,8 +109,6 @@ public class JavascriptArray extends JavascriptObject {
         }
         return obj;
     }
-    
-    //slice() 	Selects a part of an array, and returns the new array
     
     //sort() 	Sorts the elements of an array
     public void sort(String func) {
@@ -117,6 +126,8 @@ public class JavascriptArray extends JavascriptObject {
         return invokeJavascriptReturnValue("toString", String.class);
     }
     
+    //valueOf()
+    
     //unshift() 	Adds new elements to the beginning of an array, and returns the new length
     public int unshift(Object obj) {
         if (obj instanceof JavascriptObject) {
@@ -124,17 +135,6 @@ public class JavascriptArray extends JavascriptObject {
             content.put(((JavascriptObject) obj).getJSObject(), (JavascriptObject) obj);
         }
         return checkInteger(invokeJavascript("unshift", obj), 0);
-    }
-    
-    //valueOf()
-    
-    /** Get the length of the array. This returns the value from the underlying 
-     * Javascrpt object.
-     * 
-     * @return 
-     */
-    public int length() {
-        return checkInteger(getProperty("length"), 0);
     }
     
 }

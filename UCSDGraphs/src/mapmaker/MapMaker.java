@@ -5,8 +5,51 @@ import java.util.HashMap;
 import java.util.List;
 import javax.json.*;
 
+class Location {
+    private double lat;
+    private double lon;
+
+    public Location(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    /**
+     * @param bounds [south, west, north, east]
+     */
+    public boolean outsideBounds(float[] bounds) {
+        return (lat < bounds[0] || lat > bounds[2] || lon < bounds[1] || lon > bounds[3]);
+    }
+
+    public String toString() {
+        return "" + lat + " " + lon + " ";
+    }
+        
+}
+
 public class MapMaker {
+    public static void main(String[] args) {
+        if (args.length != 4) {
+            System.out.println("Incorrect number of arguments.");
+            System.out.println(args.length);
+            return;
+        }
+
+        float[] bound_arr = new float[4];
+        try {
+            for (int i = 0; i < args.length; i++) {
+                bound_arr[i] = Float.parseFloat(args[i]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        MapMaker map = new MapMaker(bound_arr);
+        map.parseData("ucsd.map");
+    }
     float[] bounds;
+
     HashMap<Integer, Location> nodes = new HashMap<Integer, Location>();
 
     public MapMaker(float[] bounds) {
@@ -56,47 +99,4 @@ public class MapMaker {
         outfile.close();
         return true;
     }
-
-    public static void main(String[] args) {
-        if (args.length != 4) {
-            System.out.println("Incorrect number of arguments.");
-            System.out.println(args.length);
-            return;
-        }
-
-        float[] bound_arr = new float[4];
-        try {
-            for (int i = 0; i < args.length; i++) {
-                bound_arr[i] = Float.parseFloat(args[i]);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-
-        MapMaker map = new MapMaker(bound_arr);
-        map.parseData("ucsd.map");
-    }
-}
-
-class Location {
-    private double lat;
-    private double lon;
-
-    public Location(double lat, double lon) {
-        this.lat = lat;
-        this.lon = lon;
-    }
-
-    public String toString() {
-        return "" + lat + " " + lon + " ";
-    }
-
-    /**
-     * @param bounds [south, west, north, east]
-     */
-    public boolean outsideBounds(float[] bounds) {
-        return (lat < bounds[0] || lat > bounds[2] || lon < bounds[1] || lon > bounds[3]);
-    }
-        
 }

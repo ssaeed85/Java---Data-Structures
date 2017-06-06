@@ -28,13 +28,11 @@ public class DataSet {
         currentlyDisplayed = false;
 	}
 
-    public void setGraph(roadgraph.MapGraph graph) {
-    	this.graph = graph;
-    }
+    public String getFilePath() {
+		return this.filePath;
+	}
 
-    public void setRoads(HashMap<geography.GeographicPoint,HashSet<geography.RoadSegment>>  roads) { this.roads = roads; }
     public roadgraph.MapGraph getGraph(){ return graph; }
-    
     /** Return the intersections in this graph.
      * In order to keep it consistent, if getVertices in the graph returns something 
      * other than null (i.e. it's been implemented) we get the vertices from 
@@ -52,6 +50,11 @@ public class DataSet {
     	}
     }
     
+    public Object[] getPoints() {
+    	Set<geography.GeographicPoint> pointSet = roads.keySet();
+    	return pointSet.toArray();
+    }
+    
     public HashMap<geography.GeographicPoint,HashSet<geography.RoadSegment>>  getRoads() { return this.roads; }
 
     public void initializeGraph() {
@@ -62,22 +65,19 @@ public class DataSet {
     	GraphLoader.loadRoadMap(filePath, graph, roads, intersections);
     }
 
-	public String getFilePath() {
-		return this.filePath;
-	}
-
-
-    public Object[] getPoints() {
-    	Set<geography.GeographicPoint> pointSet = roads.keySet();
-    	return pointSet.toArray();
-    }
-
-    public boolean isDisplayed() {
+	public boolean isDisplayed() {
     	return this.currentlyDisplayed;
     }
+
 
     public void setDisplayed(boolean value) {
     	this.currentlyDisplayed = value;
     }
+
+    public void setGraph(roadgraph.MapGraph graph) {
+    	this.graph = graph;
+    }
+
+    public void setRoads(HashMap<geography.GeographicPoint,HashSet<geography.RoadSegment>>  roads) { this.roads = roads; }
 
 }

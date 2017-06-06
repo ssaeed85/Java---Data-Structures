@@ -29,14 +29,14 @@ public class PolygonOptions extends FillableMapShapeOptions<PolygonOptions> {
     public PolygonOptions() {
     }
     
-    public PolygonOptions paths(MVCArray paths) {
-        setProperty("path", paths);
-        this.paths = paths;
+    @Override
+    protected PolygonOptions getMe() {
         return this;
     }
     
-    @Override
-    protected PolygonOptions getMe() {
+    public PolygonOptions paths(MVCArray paths) {
+        setProperty("path", paths);
+        this.paths = paths;
         return this;
     }
     

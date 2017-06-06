@@ -20,19 +20,26 @@ import mapmaker.MapMaker;
 
 // class for map and general application services (file IO, etc.)
 public class GeneralService {
-//	private static boolean singleton = false;
+private static final String DATA_FILE_PATTERN = "[\\w_]+.map";
+	private static final String DATA_FILE_DIR_STR = "data/maps/";
+	public static String getDataSetDirectory() { return GeneralService.DATA_FILE_DIR_STR; }
+    public static String getFileRegex() {
+    	return GeneralService.DATA_FILE_PATTERN;
+    }
+
+
+
+    //	private static boolean singleton = false;
 	private int currentState;
-	private SelectManager selectManager;
-	private GoogleMap map;
+    private SelectManager selectManager;
+
+    private GoogleMap map;
     private MarkerManager markerManager;
 
-
-
-    private static final String DATA_FILE_PATTERN = "[\\w_]+.map";
-    private static final String DATA_FILE_DIR_STR = "data/maps/";
-
     private List<String> filenames;
-    DataSet dataSet;
+
+
+	DataSet dataSet;
 
     public GeneralService(GoogleMapView mapComponent, SelectManager selectManager, MarkerManager markerManager) {
         // get map from GoogleMapView
@@ -48,39 +55,35 @@ public class GeneralService {
     	});*/
     }
 
-
-	// writes geographic data flat file
-    // parameters arr contains the coordinates of the bounds for the map region
-    public boolean writeDataToFile(String filename, float[] arr) {
-     	MapMaker mm = new MapMaker(arr);
-
-    	// parse data and write to filename
-    	if(mm.parseData(filename)) {
-            return true;
-    	}
-
-        return false;
-    }
-
-    public static String getDataSetDirectory() { return GeneralService.DATA_FILE_DIR_STR; }
-
-    // gets current bounds of map view
-    public float[] getBoundsArray() {
-        LatLong sw, ne;
-    	LatLongBounds bounds = map.getBounds();
-
-    	sw = bounds.getSouthWest();
-    	ne = bounds.getNorthEast();
-
-    	// [S, W, N, E]
-    	return new float[] {(float) sw.getLatitude(), (float) sw.getLongitude(),
-    			            (float) ne.getLatitude(), (float) ne.getLongitude()};
-    }
-
     public void addDataFile(String filename) {
     	filenames.add(filename);
     }
 
+    public float boundsSize() {
+    	float[] bounds = getBoundsArray();
+    	return (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]);
+    }
+
+    public boolean checkBoundsSize(double limit) {
+    	if (boundsSize() > limit) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    /**
+     * Check if file name matches pattern [filename].map
+     *
+     * @param str - path to check
+     * @return string to use as path
+     */
+    public String checkDataFileName(String str) {
+    	if(Pattern.matches(DATA_FILE_PATTERN, str)) {
+            return DATA_FILE_DIR_STR + str;
+    	}
+    	return null;
+    }
+    
     public void displayIntersections(DataSet dataset) {
         // remove old data set markers
     	if(markerManager == null){
@@ -96,31 +99,27 @@ public class GeneralService {
         dataset.setDisplayed(true);
 
     }
-    
-    public float boundsSize() {
-    	float[] bounds = getBoundsArray();
-    	return (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]);
-    }
-    
-    public boolean checkBoundsSize(double limit) {
-    	if (boundsSize() > limit) {
-    		return false;
-    	}
-    	return true;
+
+    // gets current bounds of map view
+    public float[] getBoundsArray() {
+        LatLong sw, ne;
+    	LatLongBounds bounds = map.getBounds();
+
+    	sw = bounds.getSouthWest();
+    	ne = bounds.getNorthEast();
+
+    	// [S, W, N, E]
+    	return new float[] {(float) sw.getLatitude(), (float) sw.getLongitude(),
+    			            (float) ne.getLatitude(), (float) ne.getLongitude()};
     }
 
-    /**
-     * Check if file name matches pattern [filename].map
-     *
-     * @param str - path to check
-     * @return string to use as path
-     */
-    public String checkDataFileName(String str) {
-    	if(Pattern.matches(DATA_FILE_PATTERN, str)) {
-            return DATA_FILE_DIR_STR + str;
-    	}
-    	return null;
+    public List<String> getDataFiles() {
+    	return filenames;
     }
+
+
+
+    public double getState() { return currentState; }
 
     public void runFetchTask(String fName, ComboBox<DataSet> cb, Button button) {
         float[] arr = getBoundsArray();
@@ -177,22 +176,23 @@ public class GeneralService {
     }
 
 
-
-    public List<String> getDataFiles() {
-    	return filenames;
-    }
-
-    public static String getFileRegex() {
-    	return GeneralService.DATA_FILE_PATTERN;
-    }
-
-
     public void setState(int state) {
     	currentState = state;
     }
 
 
-    public double getState() { return currentState; }
+    // writes geographic data flat file
+    // parameters arr contains the coordinates of the bounds for the map region
+    public boolean writeDataToFile(String filename, float[] arr) {
+     	MapMaker mm = new MapMaker(arr);
+
+    	// parse data and write to filename
+    	if(mm.parseData(filename)) {
+            return true;
+    	}
+
+        return false;
+    }
 
 
 }

@@ -34,14 +34,14 @@ public class CircleOptions extends FillableMapShapeOptions<CircleOptions> {
         return this;
     }
     
-    public CircleOptions radius(double radius) {
-        setProperty("radius", radius);
-        this.radius = radius;
+    @Override
+    protected CircleOptions getMe() {
         return this;
     }
 
-    @Override
-    protected CircleOptions getMe() {
+    public CircleOptions radius(double radius) {
+        setProperty("radius", radius);
+        this.radius = radius;
         return this;
     }
        

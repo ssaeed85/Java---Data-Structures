@@ -30,12 +30,12 @@ public class MVCArray extends JavascriptObject {
         this(new Object[]{});
     }
 
-    public MVCArray(Object[] ary) {
-        super(GMapObjectType.MVC_ARRAY, ary, true);
-    }
-
     public MVCArray(JSObject obj) {
         super(GMapObjectType.MVC_ARRAY, obj);
+    }
+
+    public MVCArray(Object[] ary) {
+        super(GMapObjectType.MVC_ARRAY, ary, true);
     }
 
     /**

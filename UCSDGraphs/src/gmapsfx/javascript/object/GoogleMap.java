@@ -36,10 +36,10 @@ import netscape.javascript.JSObject;
  */
 public class GoogleMap extends JavascriptObject {
 
+    protected static String divArg = "document.getElementById('map')";
     private boolean userPromptedZoomChange;
     private boolean mapPromptedZoomChange;
     protected MapOptions options;
-    protected static String divArg = "document.getElementById('map')";
 
     private ReadOnlyObjectWrapper<LatLong> center;
     private IntegerProperty zoom;
@@ -55,55 +55,58 @@ public class GoogleMap extends JavascriptObject {
         super(GMapObjectType.MAP, new Object[]{divArg, mapOptions});
     }
 
-    public void setZoom(int zoom) {
-        zoomProperty().set(zoom);
+    public void addMapShape(MapShape shape) {
+        shape.setMap(this);
     }
 
-    public int getZoom() {
-        return zoomProperty().get();
+    public void addMarker(Marker marker) {
+        marker.setMap(this);
     }
 
-    private int internalGetZoom() {
-        return (int) invokeJavascript("getZoom");
+    /**
+     * Adds a handler for a state type event on the map.
+     * <p>
+     * We could allow this to handle any state event by adding a parameter
+     * JavascriptObject obj, but we would then need to loosen up the event type
+     * and either accept a String value, or fill an enum with all potential
+     * state events.
+     *
+     * @param type Type of the event to register against.
+     * @param h Handler that will be called when the event occurs.
+     */
+    public void addStateEventHandler(MapStateEventType type, StateEventHandler h) {
+        String key = registerEventHandler(h);
+        String mcall = "google.maps.event.addListener(" + getVariableName() + ", '" + type.name() + "', "
+                + "function() {document.jsHandlers.handleStateEvent('" + key + "');});";
+        //System.out.println("addStateEventHandler mcall: " + mcall);
+        runtime.execute(mcall);
+
     }
 
-    private void internalSetZoom(int zoom) {
-        invokeJavascript("setZoom", zoom);
+    /**
+     * Adds a handler for a mouse type event on the map.
+     *
+     * @param obj The object that the event should be registered on.
+     * @param type Type of the event to register against.
+     * @param h Handler that will be called when the event occurs.
+     */
+    public void addUIEventHandler(JavascriptObject obj, UIEventType type, UIEventHandler h) {
+        String key = registerEventHandler(h);
+        String mcall = "google.maps.event.addListener(" + obj.getVariableName() + ", '" + type.name() + "', "
+                + "function(event) {document.jsHandlers.handleUIEvent('" + key + "', event);});";//.latLng
+        //System.out.println("addUIEventHandler mcall: " + mcall);
+        runtime.execute(mcall);
     }
 
-    public IntegerProperty zoomProperty() {
-        if (zoom == null) {
-            zoom = new SimpleIntegerProperty(internalGetZoom());
-            addStateEventHandler(MapStateEventType.zoom_changed, () -> {
-                if (!userPromptedZoomChange) {
-                    mapPromptedZoomChange = true;
-                    zoom.set(internalGetZoom());
-                    mapPromptedZoomChange = false;
-                }
-            });
-            zoom.addListener((ObservableValue<? extends Number> obs, Number o, Number n) -> {
-                if (!mapPromptedZoomChange) {
-                    userPromptedZoomChange = true;
-                    internalSetZoom(n.intValue());
-                    userPromptedZoomChange = false;
-                }
-            });
-        }
-        return zoom;
+    /**
+     * Adds a handler for a mouse type event on the map.
+     *
+     * @param type Type of the event to register against.
+     * @param h Handler that will be called when the event occurs.
+     */
+    public void addUIEventHandler(UIEventType type, UIEventHandler h) {
+        this.addUIEventHandler(this, type, h);
     }
-
-    public void setCenter(LatLong latLong) {
-        invokeJavascript("setCenter", latLong);
-    }
-
-    public LatLong getLatLong() {
-        return getProperty("setCenter", LatLong.class);
-    }
-
-    public void fitBounds( LatLongBounds bounds ) {
-        invokeJavascript("fitBounds", bounds );
-    }
-
 
     public final ReadOnlyObjectProperty<LatLong> centerProperty() {
         if (center == null) {
@@ -115,53 +118,8 @@ public class GoogleMap extends JavascriptObject {
         return center.getReadOnlyProperty();
     }
 
-    public LatLong getCenter() {
-        return new LatLong((JSObject) invokeJavascript("getCenter"));
-    }
-
-
-    public void setHeading( double heading ) {
-        invokeJavascript("setHeading", heading);
-    }
-
-    public double getHeading() {
-        return invokeJavascriptReturnValue("getHeading", Double.class );
-    }
-
-    public void addMarker(Marker marker) {
-        marker.setMap(this);
-    }
-
-    public void removeMarker(Marker marker) {
-        marker.setMap(null);
-    }
-
-    public void setMapType(MapTypeIdEnum type) {
-        invokeJavascript("setMapTypeId", type);
-    }
-
-    public void addMapShape(MapShape shape) {
-        shape.setMap(this);
-    }
-
-    public void removeMapShape(MapShape shape) {
-        shape.setMap(null);
-    }
-
-    public Projection getProjection() {
-        Object obj = invokeJavascript("getProjection");
-        return (obj == null) ? null : new Projection((JSObject) obj);
-    }
-
-    /**
-     * Returns the LatLongBounds of the visual area. Note: on zoom changes the
-     * bounds are reset after the zoom event is fired, which can cause
-     * unexpected results.
-     *
-     * @return
-     */
-    public LatLongBounds getBounds() {
-        return invokeJavascriptReturnValue("getBounds", LatLongBounds.class);
+    public void fitBounds( LatLongBounds bounds ) {
+        invokeJavascript("fitBounds", bounds );
     }
 
     /**
@@ -198,6 +156,48 @@ public class GoogleMap extends JavascriptObject {
         return new Point2D(x, y);
     }
 
+
+    /**
+     * Returns the LatLongBounds of the visual area. Note: on zoom changes the
+     * bounds are reset after the zoom event is fired, which can cause
+     * unexpected results.
+     *
+     * @return
+     */
+    public LatLongBounds getBounds() {
+        return invokeJavascriptReturnValue("getBounds", LatLongBounds.class);
+    }
+
+    public LatLong getCenter() {
+        return new LatLong((JSObject) invokeJavascript("getCenter"));
+    }
+
+
+    public double getHeading() {
+        return invokeJavascriptReturnValue("getHeading", Double.class );
+    }
+
+    public LatLong getLatLong() {
+        return getProperty("setCenter", LatLong.class);
+    }
+
+    public Projection getProjection() {
+        Object obj = invokeJavascript("getProjection");
+        return (obj == null) ? null : new Projection((JSObject) obj);
+    }
+
+    public int getZoom() {
+        return zoomProperty().get();
+    }
+
+    private int internalGetZoom() {
+        return (int) invokeJavascript("getZoom");
+    }
+
+    private void internalSetZoom(int zoom) {
+        invokeJavascript("setZoom", zoom);
+    }
+
     /**
      * Pans the map by the supplied values.
      *
@@ -226,49 +226,49 @@ public class GoogleMap extends JavascriptObject {
         return jsHandlers.registerHandler(h);
     }
 
-    /**
-     * Adds a handler for a mouse type event on the map.
-     *
-     * @param type Type of the event to register against.
-     * @param h Handler that will be called when the event occurs.
-     */
-    public void addUIEventHandler(UIEventType type, UIEventHandler h) {
-        this.addUIEventHandler(this, type, h);
+    public void removeMapShape(MapShape shape) {
+        shape.setMap(null);
     }
 
-    /**
-     * Adds a handler for a mouse type event on the map.
-     *
-     * @param obj The object that the event should be registered on.
-     * @param type Type of the event to register against.
-     * @param h Handler that will be called when the event occurs.
-     */
-    public void addUIEventHandler(JavascriptObject obj, UIEventType type, UIEventHandler h) {
-        String key = registerEventHandler(h);
-        String mcall = "google.maps.event.addListener(" + obj.getVariableName() + ", '" + type.name() + "', "
-                + "function(event) {document.jsHandlers.handleUIEvent('" + key + "', event);});";//.latLng
-        //System.out.println("addUIEventHandler mcall: " + mcall);
-        runtime.execute(mcall);
+    public void removeMarker(Marker marker) {
+        marker.setMap(null);
     }
 
-    /**
-     * Adds a handler for a state type event on the map.
-     * <p>
-     * We could allow this to handle any state event by adding a parameter
-     * JavascriptObject obj, but we would then need to loosen up the event type
-     * and either accept a String value, or fill an enum with all potential
-     * state events.
-     *
-     * @param type Type of the event to register against.
-     * @param h Handler that will be called when the event occurs.
-     */
-    public void addStateEventHandler(MapStateEventType type, StateEventHandler h) {
-        String key = registerEventHandler(h);
-        String mcall = "google.maps.event.addListener(" + getVariableName() + ", '" + type.name() + "', "
-                + "function() {document.jsHandlers.handleStateEvent('" + key + "');});";
-        //System.out.println("addStateEventHandler mcall: " + mcall);
-        runtime.execute(mcall);
+    public void setCenter(LatLong latLong) {
+        invokeJavascript("setCenter", latLong);
+    }
 
+    public void setHeading( double heading ) {
+        invokeJavascript("setHeading", heading);
+    }
+
+    public void setMapType(MapTypeIdEnum type) {
+        invokeJavascript("setMapTypeId", type);
+    }
+
+    public void setZoom(int zoom) {
+        zoomProperty().set(zoom);
+    }
+
+    public IntegerProperty zoomProperty() {
+        if (zoom == null) {
+            zoom = new SimpleIntegerProperty(internalGetZoom());
+            addStateEventHandler(MapStateEventType.zoom_changed, () -> {
+                if (!userPromptedZoomChange) {
+                    mapPromptedZoomChange = true;
+                    zoom.set(internalGetZoom());
+                    mapPromptedZoomChange = false;
+                }
+            });
+            zoom.addListener((ObservableValue<? extends Number> obs, Number o, Number n) -> {
+                if (!mapPromptedZoomChange) {
+                    userPromptedZoomChange = true;
+                    internalSetZoom(n.intValue());
+                    userPromptedZoomChange = false;
+                }
+            });
+        }
+        return zoom;
     }
 
 }

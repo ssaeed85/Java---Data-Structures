@@ -45,105 +45,7 @@ public class RouteService {
 	// GETS BIG
 	// initialize??
 
-	// add route polyline to map
-	//DISPLAY ROUTE METHODS
 	/**
-	 * Displays route on Google Map
-	 * @return returns false if route fails to display
-	 */
-	private boolean displayRoute(List<LatLong> route) {
-
-        if(routeLine != null) {
-        	removeRouteLine();
-        }
-		routeLine = new Polyline();
-		MVCArray path = new MVCArray();
-		LatLongBounds bounds = new LatLongBounds();
-		for(LatLong point : route)  {
-			path.push(point);
-            bounds = bounds.extend(point);
-		}
-		routeLine.setPath(path);
-
-		map.addMapShape(routeLine);
-
-		//System.out.println(bounds.getNorthEast());
-		//EXCEPTION getBounds() messed up??
-        //System.out.println(routeLine.getBounds());
-
-
-		markerManager.hideIntermediateMarkers();
-		map.fitBounds(bounds);
-    	markerManager.disableVisButton(false);
-		return true;
-	}
-
-    public void hideRoute() {
-    	if(routeLine != null) {
-        	map.removeMapShape(routeLine);
-        	if(markerManager.getVisualization() != null) {
-        		markerManager.clearVisualization();
-        	}
-            markerManager.restoreMarkers();
-        	markerManager.disableVisButton(true);
-            routeLine = null;
-    	}
-    }
-
-    public void reset() {
-        removeRouteLine();
-    }
-
-    public boolean isRouteDisplayed() {
-    	return routeLine != null;
-    }
-    public boolean displayRoute(geography.GeographicPoint start, geography.GeographicPoint end, int toggle) {
-        if(routeLine == null) {
-        	if(markerManager.getVisualization() != null) {
-        		markerManager.clearVisualization();
-        	}
-
-        	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
-        			toggle == RouteController.BFS) {
-        		markerManager.initVisualization();
-            	Consumer<geography.GeographicPoint> nodeAccepter = markerManager.getVisualization()::acceptPoint;
-            	List<geography.GeographicPoint> path = null;
-            	if (toggle == RouteController.BFS) {
-            		path = markerManager.getDataSet().getGraph().bfs(start, end, nodeAccepter);
-            	}
-            	else if (toggle == RouteController.DIJ) {
-            		path = markerManager.getDataSet().getGraph().dijkstra(start, end, nodeAccepter);
-            	}
-            	else if (toggle == RouteController.A_STAR) {
-            		path = markerManager.getDataSet().getGraph().aStarSearch(start, end, nodeAccepter);
-            	}
-
-            	if(path == null) {
-                    // System.out.println("In displayRoute : PATH NOT FOUND");
-                    MapApp.showInfoAlert("Routing Error : ", "No path found");
-                	return false;
-                }
-                // TODO -- debug road segments
-            	List<LatLong> mapPath = constructMapPath(path);
-                //List<LatLong> mapPath = new ArrayList<LatLong>();
-                //for(geography.GeographicPoint point : path) {
-                //    mapPath.add(new LatLong(point.getX(), point.getY()));
-                //}
-
-
-                markerManager.setSelectMode(false);
-                return displayRoute(mapPath);
-    		}
-
-    		return false;
-        }
-        return false;
-    }
-
-
-
-
-    /**
      * Construct path including road regments
      * @param path - path with only intersections
      * @return list of LatLongs corresponding the path of route
@@ -197,12 +99,110 @@ public class RouteService {
     	return retVal;
     }
 
+    public boolean displayRoute(geography.GeographicPoint start, geography.GeographicPoint end, int toggle) {
+        if(routeLine == null) {
+        	if(markerManager.getVisualization() != null) {
+        		markerManager.clearVisualization();
+        	}
 
-	private void removeRouteLine() {
+        	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
+        			toggle == RouteController.BFS) {
+        		markerManager.initVisualization();
+            	Consumer<geography.GeographicPoint> nodeAccepter = markerManager.getVisualization()::acceptPoint;
+            	List<geography.GeographicPoint> path = null;
+            	if (toggle == RouteController.BFS) {
+            		path = markerManager.getDataSet().getGraph().bfs(start, end, nodeAccepter);
+            	}
+            	else if (toggle == RouteController.DIJ) {
+            		path = markerManager.getDataSet().getGraph().dijkstra(start, end, nodeAccepter);
+            	}
+            	else if (toggle == RouteController.A_STAR) {
+            		path = markerManager.getDataSet().getGraph().aStarSearch(start, end, nodeAccepter);
+            	}
+
+            	if(path == null) {
+                    // System.out.println("In displayRoute : PATH NOT FOUND");
+                    MapApp.showInfoAlert("Routing Error : ", "No path found");
+                	return false;
+                }
+                // TODO -- debug road segments
+            	List<LatLong> mapPath = constructMapPath(path);
+                //List<LatLong> mapPath = new ArrayList<LatLong>();
+                //for(geography.GeographicPoint point : path) {
+                //    mapPath.add(new LatLong(point.getX(), point.getY()));
+                //}
+
+
+                markerManager.setSelectMode(false);
+                return displayRoute(mapPath);
+    		}
+
+    		return false;
+        }
+        return false;
+    }
+
+    // add route polyline to map
+	//DISPLAY ROUTE METHODS
+	/**
+	 * Displays route on Google Map
+	 * @return returns false if route fails to display
+	 */
+	private boolean displayRoute(List<LatLong> route) {
+
+        if(routeLine != null) {
+        	removeRouteLine();
+        }
+		routeLine = new Polyline();
+		MVCArray path = new MVCArray();
+		LatLongBounds bounds = new LatLongBounds();
+		for(LatLong point : route)  {
+			path.push(point);
+            bounds = bounds.extend(point);
+		}
+		routeLine.setPath(path);
+
+		map.addMapShape(routeLine);
+
+		//System.out.println(bounds.getNorthEast());
+		//EXCEPTION getBounds() messed up??
+        //System.out.println(routeLine.getBounds());
+
+
+		markerManager.hideIntermediateMarkers();
+		map.fitBounds(bounds);
+    	markerManager.disableVisButton(false);
+		return true;
+	}
+
+    public void hideRoute() {
+    	if(routeLine != null) {
+        	map.removeMapShape(routeLine);
+        	if(markerManager.getVisualization() != null) {
+        		markerManager.clearVisualization();
+        	}
+            markerManager.restoreMarkers();
+        	markerManager.disableVisButton(true);
+            routeLine = null;
+    	}
+    }
+    public boolean isRouteDisplayed() {
+    	return routeLine != null;
+    }
+
+
+
+
+    private void removeRouteLine() {
         if(routeLine != null) {
     		map.removeMapShape(routeLine);
         }
 	}
+
+
+	public void reset() {
+        removeRouteLine();
+    }
 
 //    private void setMarkerManager(MarkerManager manager) {
 //    	this.markerManager = manager;

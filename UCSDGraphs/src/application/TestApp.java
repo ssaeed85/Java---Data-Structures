@@ -22,19 +22,7 @@ public class TestApp extends Application
 	protected GoogleMapView mapComponent;
 	protected GoogleMap map;
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		mapComponent = new GoogleMapView();
-		mapComponent.addMapInitializedListener(this);
-
-		BorderPane bp = new BorderPane();
-		Scene scene = new Scene(bp);
-        bp.setCenter(mapComponent);
-		primaryStage.setScene(scene);
-        primaryStage.show();
-	}
-
-    public void mapInitialized() {
+	public void mapInitialized() {
     	LatLong center = new LatLong(34.0219, -118.4814);
 
     	MapOptions options = new MapOptions();
@@ -56,5 +44,17 @@ public class TestApp extends Application
         Polyline p = new Polyline();
 
     }
+
+    @Override
+	public void start(Stage primaryStage) throws Exception {
+		mapComponent = new GoogleMapView();
+		mapComponent.addMapInitializedListener(this);
+
+		BorderPane bp = new BorderPane();
+		Scene scene = new Scene(bp);
+        bp.setCenter(mapComponent);
+		primaryStage.setScene(scene);
+        primaryStage.show();
+	}
 
 }

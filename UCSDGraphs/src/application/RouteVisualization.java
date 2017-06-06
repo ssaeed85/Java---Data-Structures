@@ -46,6 +46,12 @@ public class RouteVisualization {
 
 
 
+    public void clearMarkers() {
+    	for(Marker marker : markerList) {
+    		marker.setVisible(false);
+    	}
+    }
+
     public void startVisualization() {
 
     	LatLongBounds bounds = new LatLongBounds();
@@ -80,12 +86,6 @@ public class RouteVisualization {
 //        manager.disableRouteButtons(false);
 
 
-    }
-
-    public void clearMarkers() {
-    	for(Marker marker : markerList) {
-    		marker.setVisible(false);
-    	}
     }
 
 

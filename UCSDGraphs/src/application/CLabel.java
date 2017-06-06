@@ -16,22 +16,13 @@ import javafx.scene.paint.Paint;
  */
 
 public class CLabel<T> extends Label {
-	private ObjectProperty<T> item = new SimpleObjectProperty<T>(this, "item");
-    private static final Paint RED = Color.web("#9E092F");
+	private static final Paint RED = Color.web("#9E092F");
     private static final Paint GREEN = Color.web("#099E78");
+    private ObjectProperty<T> item = new SimpleObjectProperty<T>(this, "item");
 
     // CONSTRUCTORS
 	public CLabel() {
 		super();
-	}
-
-	public CLabel(String text, T item) {
-		super(text);
-
-    if(item != null)
-        setItem(item);
-    else
-    	setItem(null);
 	}
 
 	public CLabel(String text, Node graphic, T item) {
@@ -43,6 +34,27 @@ public class CLabel<T> extends Label {
 
 	}
 
+	public CLabel(String text, T item) {
+		super(text);
+
+    if(item != null)
+        setItem(item);
+    else
+    	setItem(null);
+	}
+
+
+	public T getItem(){
+		return item.get();
+	}
+
+    public final ObjectProperty<T> itemProperty(){ return item; }
+
+
+	public void setItem(T newItem) {
+		item.set(newItem);
+    updateView(item.get(), true);
+	}
 
 	/**
 	 * Used to update item when new item is set.
@@ -60,17 +72,5 @@ public class CLabel<T> extends Label {
 			setText("Choose Point");
 			setTextFill(RED);
 		}
-	}
-
-    public final ObjectProperty<T> itemProperty(){ return item; }
-
-
-	public T getItem(){
-		return item.get();
-	}
-
-	public void setItem(T newItem) {
-		item.set(newItem);
-    updateView(item.get(), true);
 	}
 }

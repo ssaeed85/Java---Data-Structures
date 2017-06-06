@@ -40,14 +40,6 @@ public class LatLong extends JavascriptObject {
         super(GMapObjectType.LAT_LNG, jsObject);
     }
 
-    public double getLatitude() {
-        return invokeJavascriptReturnValue("lat", Number.class ).doubleValue();
-    }
-
-    public double getLongitude() {
-        return invokeJavascriptReturnValue("lng", Number.class ).doubleValue();
-    }
-
     /**
      * From v3_epoly.js, calculates the distance between this LatLong point and
      * another.
@@ -71,21 +63,34 @@ public class LatLong extends JavascriptObject {
     }
 
     /**
-     * Convenience method to convert the latitude of this LatLong to radians.
+     * Calculates the bearing, in degrees, of the end LatLong point from this
+     * LatLong point.
      *
-     * @return The latitude value of this LatLong, as radians.
+     * @param end The point that the bearing is calculated for.
+     * @return The bearing, in degrees, of the supplied point from this point.
      */
-    public double latToRadians() {
-        return Math.toRadians(getLatitude());
-    }
+    public double getBearing(LatLong end) {
+        if (this.equals(end)) {
+            return 0;
+        }
 
-    /**
-     * Convenience method to convert the longitude of this LatLong to radians.
-     *
-     * @return The longitude of this LatLong, as radians.
-     */
-    public double longToRadians() {
-        return Math.toRadians(getLongitude());
+        double lat1 = latToRadians();
+        double lon1 = longToRadians();
+        double lat2 = end.latToRadians();
+        double lon2 = end.longToRadians();
+
+        double angle = -Math.atan2(Math.sin(lon1 - lon2) * Math.cos(lat2),
+                Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
+                * Math.cos(lat2) * Math.cos(lon1 - lon2));
+
+        if (angle < 0.0) {
+            angle += Math.PI * 2.0;
+        }
+        if (angle > Math.PI) {
+            angle -= Math.PI * 2.0;
+        }
+
+        return Math.toDegrees(angle);
     }
 
     /**
@@ -118,35 +123,30 @@ public class LatLong extends JavascriptObject {
 
     }
 
+    public double getLatitude() {
+        return invokeJavascriptReturnValue("lat", Number.class ).doubleValue();
+    }
+
+    public double getLongitude() {
+        return invokeJavascriptReturnValue("lng", Number.class ).doubleValue();
+    }
+
     /**
-     * Calculates the bearing, in degrees, of the end LatLong point from this
-     * LatLong point.
+     * Convenience method to convert the latitude of this LatLong to radians.
      *
-     * @param end The point that the bearing is calculated for.
-     * @return The bearing, in degrees, of the supplied point from this point.
+     * @return The latitude value of this LatLong, as radians.
      */
-    public double getBearing(LatLong end) {
-        if (this.equals(end)) {
-            return 0;
-        }
+    public double latToRadians() {
+        return Math.toRadians(getLatitude());
+    }
 
-        double lat1 = latToRadians();
-        double lon1 = longToRadians();
-        double lat2 = end.latToRadians();
-        double lon2 = end.longToRadians();
-
-        double angle = -Math.atan2(Math.sin(lon1 - lon2) * Math.cos(lat2),
-                Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
-                * Math.cos(lat2) * Math.cos(lon1 - lon2));
-
-        if (angle < 0.0) {
-            angle += Math.PI * 2.0;
-        }
-        if (angle > Math.PI) {
-            angle -= Math.PI * 2.0;
-        }
-
-        return Math.toDegrees(angle);
+    /**
+     * Convenience method to convert the longitude of this LatLong to radians.
+     *
+     * @return The longitude of this LatLong, as radians.
+     */
+    public double longToRadians() {
+        return Math.toRadians(getLongitude());
     }
 
     

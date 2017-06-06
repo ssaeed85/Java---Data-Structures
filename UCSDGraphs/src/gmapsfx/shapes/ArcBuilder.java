@@ -22,6 +22,40 @@ public class ArcBuilder {
     private static final int DEFAULT_ARC_POINTS = 32;
 
     /**
+     * Generates the points for an arc based on two bearings from a centre point
+     * and a radius.
+     *
+     * @param center The LatLong point of the center.
+     * @param startBearing North is 0 degrees, East is 90 degrees, etc.
+     * @param endBearing North is 0 degrees, East is 90 degrees, etc.
+     * @param radius In metres
+     * @return An array of LatLong points in an MVC array representing the arc.
+     * Using this method directly you will need to push the centre point onto
+     * the array in order to close it, if desired.
+     */
+    public static final MVCArray buildArcPoints(LatLong center, double startBearing, double endBearing, double radius) {
+        int points = DEFAULT_ARC_POINTS;
+
+        MVCArray res = new MVCArray();
+
+        if (startBearing > endBearing) {
+            endBearing += 360.0;
+        }
+        double deltaBearing = endBearing - startBearing;
+        deltaBearing = deltaBearing / points;
+        for (int i = 0; (i < points + 1); i++) {
+            res.push(center.getDestinationPoint(startBearing + i * deltaBearing, radius));
+        }
+
+        return res;
+
+    }
+
+    public static final MVCArray buildArcPoints(LatLong center, LatLong start, LatLong end) {
+        return buildArcPoints(center, center.getBearing(start), center.getBearing(end), center.distanceFrom(start));
+    }
+
+    /**
      * Builds the path for a closed arc, returning a PolygonOptions that can be
      * further customised before use.
      *
@@ -50,40 +84,6 @@ public class ArcBuilder {
     public static final PolylineOptions buildOpenArc(LatLong center, LatLong start, LatLong end) {
         MVCArray res = buildArcPoints(center, start, end);
         return new PolylineOptions().path(res);
-    }
-
-    public static final MVCArray buildArcPoints(LatLong center, LatLong start, LatLong end) {
-        return buildArcPoints(center, center.getBearing(start), center.getBearing(end), center.distanceFrom(start));
-    }
-
-    /**
-     * Generates the points for an arc based on two bearings from a centre point
-     * and a radius.
-     *
-     * @param center The LatLong point of the center.
-     * @param startBearing North is 0 degrees, East is 90 degrees, etc.
-     * @param endBearing North is 0 degrees, East is 90 degrees, etc.
-     * @param radius In metres
-     * @return An array of LatLong points in an MVC array representing the arc.
-     * Using this method directly you will need to push the centre point onto
-     * the array in order to close it, if desired.
-     */
-    public static final MVCArray buildArcPoints(LatLong center, double startBearing, double endBearing, double radius) {
-        int points = DEFAULT_ARC_POINTS;
-
-        MVCArray res = new MVCArray();
-
-        if (startBearing > endBearing) {
-            endBearing += 360.0;
-        }
-        double deltaBearing = endBearing - startBearing;
-        deltaBearing = deltaBearing / points;
-        for (int i = 0; (i < points + 1); i++) {
-            res.push(center.getDestinationPoint(startBearing + i * deltaBearing, radius));
-        }
-
-        return res;
-
     }
 
 }

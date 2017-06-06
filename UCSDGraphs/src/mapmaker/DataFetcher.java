@@ -14,6 +14,28 @@ public class DataFetcher {
         this.query = this.constructQuery(bounds);
     }
 
+    public String constructQuery(float[] boundsArray) {
+        String q = "[out:json];(";
+        String bounds = "(";
+        for (int i = 0; i < 4; i++) {
+            bounds += boundsArray[i];
+            if (i < 3) {
+                bounds += ",";
+            } else {
+                bounds += ")";
+            }
+        }
+        
+
+        for (String s : HIGHWAYS) {
+            q += "way[\"highway\"=\"" + s + "\"]" + bounds + ";";
+        }
+
+        q += "); (._;>;); out;";
+
+        return q;
+    }
+
     public JsonObject getData() {
         HttpURLConnection conn = null;
         try {
@@ -35,27 +57,5 @@ public class DataFetcher {
             System.out.println(e);
             return null;
         }
-    }
-
-    public String constructQuery(float[] boundsArray) {
-        String q = "[out:json];(";
-        String bounds = "(";
-        for (int i = 0; i < 4; i++) {
-            bounds += boundsArray[i];
-            if (i < 3) {
-                bounds += ",";
-            } else {
-                bounds += ")";
-            }
-        }
-        
-
-        for (String s : HIGHWAYS) {
-            q += "way[\"highway\"=\"" + s + "\"]" + bounds + ";";
-        }
-
-        q += "); (._;>;); out;";
-
-        return q;
     }
 }

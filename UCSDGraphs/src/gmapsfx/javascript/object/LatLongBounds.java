@@ -29,12 +29,12 @@ public class LatLongBounds extends JavascriptObject {
         super(GMapObjectType.LAT_LNG_BOUNDS);
     }
 
-    public LatLongBounds(LatLong sw, LatLong ne) {
-        super(GMapObjectType.LAT_LNG_BOUNDS, sw, ne);
-    }
-
     public LatLongBounds(JSObject obj) {
         super(GMapObjectType.LAT_LNG_BOUNDS, obj);
+    }
+
+    public LatLongBounds(LatLong sw, LatLong ne) {
+        super(GMapObjectType.LAT_LNG_BOUNDS, sw, ne);
     }
 
     public LatLongBounds extend(LatLong point) {

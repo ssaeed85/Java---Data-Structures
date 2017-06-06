@@ -25,6 +25,31 @@ public class ElevationService extends JavascriptObject {
         super(GMapObjectType.ELEVATION_SERVICE);
     }
     
+    /** Create a request for elevations for samples along a path.
+     * 
+     * @param req
+     * @param callback 
+     */
+    public void getElevationAlongPath(PathElevationRequest req, ElevationServiceCallback callback) {
+        
+        this.callback = callback;
+        
+        JSObject doc = (JSObject) getJSObject().eval("document");
+        doc.setMember(getVariableName(), this);
+        
+        StringBuilder r = new StringBuilder(getVariableName())
+              .append(".")
+              .append("getElevationAlongPath(")
+              .append(req.getVariableName())
+              .append(", ")
+              .append("function(results, status) {document.")
+              .append(getVariableName())
+              .append(".processResponse(results, status);});");
+        
+        getJSObject().eval(r.toString());
+        
+    }
+
     /** Create a request for elevations for multiple locations.
      * 
      * @param req
@@ -47,31 +72,6 @@ public class ElevationService extends JavascriptObject {
               .append(".processResponse(results, status);});");
         
 //        System.out.println("ElevationService direct call: " + r.toString());
-        
-        getJSObject().eval(r.toString());
-        
-    }
-
-    /** Create a request for elevations for samples along a path.
-     * 
-     * @param req
-     * @param callback 
-     */
-    public void getElevationAlongPath(PathElevationRequest req, ElevationServiceCallback callback) {
-        
-        this.callback = callback;
-        
-        JSObject doc = (JSObject) getJSObject().eval("document");
-        doc.setMember(getVariableName(), this);
-        
-        StringBuilder r = new StringBuilder(getVariableName())
-              .append(".")
-              .append("getElevationAlongPath(")
-              .append(req.getVariableName())
-              .append(", ")
-              .append("function(results, status) {document.")
-              .append(getVariableName())
-              .append(".processResponse(results, status);});");
         
         getJSObject().eval(r.toString());
         

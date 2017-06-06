@@ -43,8 +43,6 @@ public abstract class MapShapeOptions<T extends MapShapeOptions> extends Javascr
         super(GMapObjectType.OBJECT);
     }
     
-    protected abstract T getMe();
-    
     public T clickable(boolean clickable) {
         setProperty("clickable", clickable);
         this.clickable = clickable;
@@ -68,6 +66,8 @@ public abstract class MapShapeOptions<T extends MapShapeOptions> extends Javascr
         this.geodesic = geodesic;
         return getMe();
     }
+    
+    protected abstract T getMe();
     
     public T strokeColor(String strokeColor) {
         setProperty("strokeColor", strokeColor);

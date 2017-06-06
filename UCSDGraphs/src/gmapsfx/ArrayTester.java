@@ -37,36 +37,35 @@ import netscape.javascript.JSObject;
  */
 public class ArrayTester extends Application {
 
-    protected WebView webview;
-    protected JavaFxWebEngine webengine;
+    class TestJSO extends JavascriptObject {
 
-    @Override
-    public void start(final Stage stage) throws Exception {
+        public TestJSO() {
+            super("Object");
+        }
 
-        webview = new WebView();
-        webengine = new JavaFxWebEngine(webview.getEngine());
-        JavascriptRuntime.setDefaultWebEngine( webengine );
+        public String getTestName() {
+            return getProperty("testName", String.class);
+        }
 
-        BorderPane bp = new BorderPane();
-        bp.setCenter(webview);
+        public void setTestName(String testName) {
+            setProperty("testName", testName);
+        }
 
-        webengine.getLoadWorker().stateProperty().addListener(
-                new ChangeListener<Worker.State>() {
-                    public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
-                        if (newState == Worker.State.SUCCEEDED) {
-                            runTests();
-                            //Platform.exit();
-                        }
-                    }
-                });
-        webengine.load(getClass().getResource("/html/arrays.html").toExternalForm());
-
-        Scene scene = new Scene(bp, 600, 600);
-
-        stage.setScene(scene);
-        stage.show();
+        @Override
+        public String toString() {
+            return getTestName();
+        }
 
     }
+    public static void main(String[] args) {
+        System.setProperty("java.net.useSystemProxies", "true");
+        launch(args);
+    }
+
+    protected WebView webview;
+
+    protected JavaFxWebEngine webengine;
+
 
     private void runTests() {
 
@@ -128,30 +127,31 @@ public class ArrayTester extends Application {
     }
 
 
-    public static void main(String[] args) {
-        System.setProperty("java.net.useSystemProxies", "true");
-        launch(args);
-    }
+    @Override
+    public void start(final Stage stage) throws Exception {
 
+        webview = new WebView();
+        webengine = new JavaFxWebEngine(webview.getEngine());
+        JavascriptRuntime.setDefaultWebEngine( webengine );
 
-    class TestJSO extends JavascriptObject {
+        BorderPane bp = new BorderPane();
+        bp.setCenter(webview);
 
-        public TestJSO() {
-            super("Object");
-        }
+        webengine.getLoadWorker().stateProperty().addListener(
+                new ChangeListener<Worker.State>() {
+                    public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
+                        if (newState == Worker.State.SUCCEEDED) {
+                            runTests();
+                            //Platform.exit();
+                        }
+                    }
+                });
+        webengine.load(getClass().getResource("/html/arrays.html").toExternalForm());
 
-        public void setTestName(String testName) {
-            setProperty("testName", testName);
-        }
+        Scene scene = new Scene(bp, 600, 600);
 
-        public String getTestName() {
-            return getProperty("testName", String.class);
-        }
-
-        @Override
-        public String toString() {
-            return getTestName();
-        }
+        stage.setScene(scene);
+        stage.show();
 
     }
 

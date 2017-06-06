@@ -107,10 +107,9 @@ public class RouteController {
         });
 	}
 
-    private void setupVisualizationButton() {
-    	visualizationButton.setOnAction( e -> {
-    		markerManager.startVisualization();
-    	});
+    private void setupLabels() {
+
+
     }
 
     private void setupRouteButtons() {
@@ -124,11 +123,6 @@ public class RouteController {
         });
     }
 
-
-    private void setupLabels() {
-
-
-    }
 
     private void setupToggle() {
     	group.selectedToggleProperty().addListener( li -> {
@@ -144,6 +138,12 @@ public class RouteController {
             else {
             	System.err.println("Invalid radio button selection");
             }
+    	});
+    }
+
+    private void setupVisualizationButton() {
+    	visualizationButton.setOnAction( e -> {
+    		markerManager.startVisualization();
     	});
     }
 

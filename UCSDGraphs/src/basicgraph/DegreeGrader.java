@@ -14,11 +14,26 @@ import util.GraphLoader;
  * Grader for Module 2, Part 1.
  */
 public class DegreeGrader {
-    private String feedback;  // Feedback from the grader
-
-    private int correct;      // Tests correctly passed
-
     private static final int TESTS = 12;  // Number of tests
+
+    /**
+     * Format test number and description
+     * @param num  The test number
+     * @param test The test description
+     * @return A String with the test number and description neatly formatted.
+     */
+    public static String appendFeedback(int num, String test) {
+        return "\n** Test #" + num + ": " + test + "...";
+    }
+
+    /** Run the grader
+     * 
+     * @param args Doesn't use command line parameters
+     */
+    public static void main(String[] args) {
+        DegreeGrader grader = new DegreeGrader();
+        grader.run();
+    }
 
     
     /**
@@ -48,87 +63,9 @@ public class DegreeGrader {
         return "Score: " + score + "\n Feedback: " + feedback;
     }
 
-    /**
-     * Format test number and description
-     * @param num  The test number
-     * @param test The test description
-     * @return A String with the test number and description neatly formatted.
-     */
-    public static String appendFeedback(int num, String test) {
-        return "\n** Test #" + num + ": " + test + "...";
-    }
+    private String feedback;  // Feedback from the grader
 
-    /** Run the grader
-     * 
-     * @param args Doesn't use command line parameters
-     */
-    public static void main(String[] args) {
-        DegreeGrader grader = new DegreeGrader();
-        grader.run();
-    }
-
-    /** Run a test case on an adjacency list and adjacency matrix.
-     * @param i The graph number
-     * @param desc A description of the graph
-     * @param start The node to start from
-     * @param corr A list containing the correct answer
-     */
-    public void runTest(int i, String desc) {
-        GraphAdjList lst = new GraphAdjList();
-        GraphAdjMatrix mat = new GraphAdjMatrix();
-
-        String file = "data/graders/mod1/graph" + i + ".txt";
-        List<Integer> corr = readCorrect(file + ".degrees");
-        
-        feedback += "\n\nGRAPH: " + desc;
-        feedback += appendFeedback(i * 2 - 1, "Testing adjacency list"); 
-
-        // Load the graph, get the user's output, and compare with right answer
-        GraphLoader.loadGraph(file, lst);
-        List<Integer> result = lst.degreeSequence();
-        judge(result, corr);
- 
-        feedback += appendFeedback(i * 2, "Testing adjacency matrix");
-        GraphLoader.loadGraph(file, mat);
-        result = mat.degreeSequence();
-        judge(result, corr);
-
-    }
-
-    /** Run a road map/airplane route test case.
-     * @param i The graph number
-     * @param file The file to read the correct answer from
-     * @param desc A description of the graph
-     * @param start The node to start from
-     * @param corr A list containing the correct answer
-     * @param type The type of graph to use
-     */
-    public void runSpecialTest(int i, String file, String desc, String type) {
-        GraphAdjList lst = new GraphAdjList();
-        GraphAdjMatrix mat = new GraphAdjMatrix();
-
-        file = "data/graders/mod1/" + file;
-        List<Integer> corr = readCorrect(file + ".degrees");
-        
-        feedback += "\n\n" + desc;
-        feedback += appendFeedback(i * 2 - 1, "Testing adjacency list");
-
-        // Different method calls for different graph types
-        if (type.equals("road")) {
-            GraphLoader.loadRoadMap(file, lst);
-            GraphLoader.loadRoadMap(file, mat);
-        } else if (type.equals("air")) {
-            GraphLoader.loadRoutes(file, lst);
-            GraphLoader.loadRoutes(file, mat);
-        }
-        List<Integer> result = lst.degreeSequence();
-        judge(result, corr);
-
-        feedback += appendFeedback(i * 2, "Testing adjacency matrix");
-        result = mat.degreeSequence();
-        judge(result, corr);
-
-    }
+    private int correct;      // Tests correctly passed
 
     /** Compare the user's result with the right answer.
      * @param result The list with the user's result
@@ -194,5 +131,68 @@ public class DegreeGrader {
         }
             
         System.out.println(printOutput((double)correct / TESTS, feedback));
+    }
+
+    /** Run a road map/airplane route test case.
+     * @param i The graph number
+     * @param file The file to read the correct answer from
+     * @param desc A description of the graph
+     * @param start The node to start from
+     * @param corr A list containing the correct answer
+     * @param type The type of graph to use
+     */
+    public void runSpecialTest(int i, String file, String desc, String type) {
+        GraphAdjList lst = new GraphAdjList();
+        GraphAdjMatrix mat = new GraphAdjMatrix();
+
+        file = "data/graders/mod1/" + file;
+        List<Integer> corr = readCorrect(file + ".degrees");
+        
+        feedback += "\n\n" + desc;
+        feedback += appendFeedback(i * 2 - 1, "Testing adjacency list");
+
+        // Different method calls for different graph types
+        if (type.equals("road")) {
+            GraphLoader.loadRoadMap(file, lst);
+            GraphLoader.loadRoadMap(file, mat);
+        } else if (type.equals("air")) {
+            GraphLoader.loadRoutes(file, lst);
+            GraphLoader.loadRoutes(file, mat);
+        }
+        List<Integer> result = lst.degreeSequence();
+        judge(result, corr);
+
+        feedback += appendFeedback(i * 2, "Testing adjacency matrix");
+        result = mat.degreeSequence();
+        judge(result, corr);
+
+    }
+
+    /** Run a test case on an adjacency list and adjacency matrix.
+     * @param i The graph number
+     * @param desc A description of the graph
+     * @param start The node to start from
+     * @param corr A list containing the correct answer
+     */
+    public void runTest(int i, String desc) {
+        GraphAdjList lst = new GraphAdjList();
+        GraphAdjMatrix mat = new GraphAdjMatrix();
+
+        String file = "data/graders/mod1/graph" + i + ".txt";
+        List<Integer> corr = readCorrect(file + ".degrees");
+        
+        feedback += "\n\nGRAPH: " + desc;
+        feedback += appendFeedback(i * 2 - 1, "Testing adjacency list"); 
+
+        // Load the graph, get the user's output, and compare with right answer
+        GraphLoader.loadGraph(file, lst);
+        List<Integer> result = lst.degreeSequence();
+        judge(result, corr);
+ 
+        feedback += appendFeedback(i * 2, "Testing adjacency matrix");
+        GraphLoader.loadGraph(file, mat);
+        result = mat.degreeSequence();
+        judge(result, corr);
+
     }
 }

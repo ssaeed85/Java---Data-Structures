@@ -69,16 +69,23 @@ public class JavascriptRuntime implements IJavascriptRuntime {
     }
 
     /**
-     * Gets a constructor as a string which then can be passed to the execute().
+     * Takes the specified object and converts the argument to a String.
      *
-     * @param javascriptObjectType The type of JavaScript object to create
-     * @param args The args of the constructor
-     * @return A string which can be passed to the JavaScript environment to
-     * create a new object.
+     * @param arg The object to convert
+     * @return A String representation of the argument.
      */
-    @Override
-    public String getConstructor(String javascriptObjectType, Object... args) {
-        return getFunction("new " + javascriptObjectType, args);
+    protected String getArgString(Object arg) {
+        //if (arg instanceof LatLong) {
+        //    return ((LatLong) arg).getVariableName();
+        //} else 
+        if (arg instanceof JavascriptObject) {
+             return ((JavascriptObject) arg).getVariableName();
+           // return ((JavascriptObject) arg).getPropertiesAsString();
+        } else if( arg instanceof JavascriptEnum ) {
+            return ((JavascriptEnum) arg).getEnumValue().toString();
+        } else {
+            return arg.toString();
+        }
     }
 
     /**
@@ -94,45 +101,6 @@ public class JavascriptRuntime implements IJavascriptRuntime {
     public String getArrayConstructor(String javascriptObjectType, Object[] ary) {
         String fn = getArrayFunction("new " + javascriptObjectType, ary);
         return fn;
-    }
-
-    /**
-     * Gets a function as a String, which then can be passed to the execute()
-     * method.
-     *
-     * @param variable The variable to invoke the function on.
-     * @param function The function to invoke
-     * @param args Arguments the function requires
-     * @return A string which can be passed to the JavaScript environment to
-     * invoke the function
-     */
-    @Override
-    public String getFunction(String variable, String function, Object... args) {
-        return getFunction(variable + "." + function, args);
-    }
-
-    /**
-     * Gets a function as a String, which then can be passed to the execute()
-     * method.
-     *
-     * @param function The function to invoke
-     * @param args Arguments the function requires
-     * @return A string which can be passed to the JavaScript environment to
-     * invoke the function
-     */
-    @Override
-    public String getFunction(String function, Object... args) {
-        if (args == null) {
-            return function + "();";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(function).append("(");
-        for (Object arg : args) {
-            sb.append(getArgString(arg)).append(",");
-        }
-        sb.replace(sb.length() - 1, sb.length(), ")");
-
-        return sb.toString();
     }
 
     /**
@@ -164,22 +132,54 @@ public class JavascriptRuntime implements IJavascriptRuntime {
     }
 
     /**
-     * Takes the specified object and converts the argument to a String.
+     * Gets a constructor as a string which then can be passed to the execute().
      *
-     * @param arg The object to convert
-     * @return A String representation of the argument.
+     * @param javascriptObjectType The type of JavaScript object to create
+     * @param args The args of the constructor
+     * @return A string which can be passed to the JavaScript environment to
+     * create a new object.
      */
-    protected String getArgString(Object arg) {
-        //if (arg instanceof LatLong) {
-        //    return ((LatLong) arg).getVariableName();
-        //} else 
-        if (arg instanceof JavascriptObject) {
-             return ((JavascriptObject) arg).getVariableName();
-           // return ((JavascriptObject) arg).getPropertiesAsString();
-        } else if( arg instanceof JavascriptEnum ) {
-            return ((JavascriptEnum) arg).getEnumValue().toString();
-        } else {
-            return arg.toString();
+    @Override
+    public String getConstructor(String javascriptObjectType, Object... args) {
+        return getFunction("new " + javascriptObjectType, args);
+    }
+
+    /**
+     * Gets a function as a String, which then can be passed to the execute()
+     * method.
+     *
+     * @param function The function to invoke
+     * @param args Arguments the function requires
+     * @return A string which can be passed to the JavaScript environment to
+     * invoke the function
+     */
+    @Override
+    public String getFunction(String function, Object... args) {
+        if (args == null) {
+            return function + "();";
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append(function).append("(");
+        for (Object arg : args) {
+            sb.append(getArgString(arg)).append(",");
+        }
+        sb.replace(sb.length() - 1, sb.length(), ")");
+
+        return sb.toString();
+    }
+
+    /**
+     * Gets a function as a String, which then can be passed to the execute()
+     * method.
+     *
+     * @param variable The variable to invoke the function on.
+     * @param function The function to invoke
+     * @param args Arguments the function requires
+     * @return A string which can be passed to the JavaScript environment to
+     * invoke the function
+     */
+    @Override
+    public String getFunction(String variable, String function, Object... args) {
+        return getFunction(variable + "." + function, args);
     }
 }

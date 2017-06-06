@@ -24,4 +24,9 @@ public class MapEdge {
 	public GeographicPoint getEnd(){
 		return end;
 	}
+	
+	public String toString(){
+		return ("Map Ege Info | Name: " + name + "| Type: " + type + "| Start: " + start.toString() + 
+				"| End: " + end.toString() + "| Length: " + length);
+	}
 }

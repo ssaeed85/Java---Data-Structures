@@ -135,7 +135,8 @@ public class SearchGrader implements Runnable {
     }
 
     /** Run the grader */
-    public void run() {
+    @Override
+	public void run() {
         feedback = "";
 
         correct = 0;

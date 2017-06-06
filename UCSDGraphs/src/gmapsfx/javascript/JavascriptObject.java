@@ -30,9 +30,9 @@ import netscape.javascript.JSObject;
 public class JavascriptObject {
 
     protected static Map<JSObject,JavascriptObject> peerRegistry = new WeakHashMap<>();
+    protected static int objectCounter = 0;
     protected IJavascriptRuntime runtime;
     protected JSObject jsObject;
-    protected static int objectCounter = 0;
     protected String variableName;
 
     /**
@@ -52,17 +52,15 @@ public class JavascriptObject {
 
 
     /**
-     * Builds a new JavascriptObject based on a string representation of the object.
-     * This is useful when constructing functions as objects
-     * @param type The type of object to build
-     * @param stringRepresentation A string representation of the object, which can be executed by
-     * the Javascript runtime.
+     * Wraps a Javascript JSObject returned from a function.
+     *
+     * @param type Type of Javascript object to create.
+     * @param jsObject Object returned from Javascript.
      */
-    protected JavascriptObject( String type, String stringRepresentation ) {
+    protected JavascriptObject(String type, JSObject jsObject) {
         runtime = JavascriptRuntime.getInstance();
         variableName = getNextVariableName();
-        runtime.execute( "var " + variableName + " = " + stringRepresentation );
-        jsObject = runtime.execute(variableName);
+        this.jsObject = jsObject;
         peerRegistry.put(jsObject, this);
     }
 
@@ -95,16 +93,46 @@ public class JavascriptObject {
 
 
     /**
-     * Wraps a Javascript JSObject returned from a function.
-     *
-     * @param type Type of Javascript object to create.
-     * @param jsObject Object returned from Javascript.
+     * Builds a new JavascriptObject based on a string representation of the object.
+     * This is useful when constructing functions as objects
+     * @param type The type of object to build
+     * @param stringRepresentation A string representation of the object, which can be executed by
+     * the Javascript runtime.
      */
-    protected JavascriptObject(String type, JSObject jsObject) {
+    protected JavascriptObject( String type, String stringRepresentation ) {
         runtime = JavascriptRuntime.getInstance();
         variableName = getNextVariableName();
-        this.jsObject = jsObject;
+        runtime.execute( "var " + variableName + " = " + stringRepresentation );
+        jsObject = runtime.execute(variableName);
         peerRegistry.put(jsObject, this);
+    }
+
+    /** Checks a returned Javascript value where we expect a boolean but could
+     * get null.
+     *
+     * @param val The value from Javascript to be checked.
+     * @param def The default return value, which can be null.
+     * @return The actual value, or if null, returns false.
+     */
+    protected Boolean checkBoolean(Object val, Boolean def) {
+        return (val == null) ? def : (Boolean) val;
+    }
+
+    protected Integer checkInteger(Object val, Integer def) {
+        return (val == null) ? def : (Integer) val;
+    }
+
+    /** JSObject will return the String "undefined" at certain times, so we
+     * need to make sure we're not getting a value that looks valid, but isn't.
+     *
+     * @param val The value from Javascript to be checked.
+     * @return Either null or the value passed in.
+     */
+    protected Object checkUndefined(Object val) {
+        if (val instanceof String && ((String) val).equals("undefined")) {
+            return null;
+        }
+        return val;
     }
 
     /**
@@ -127,51 +155,6 @@ public class JavascriptObject {
     }
 
     /**
-     * Gets the name of this variable within the Javascript runtime
-     *
-     * @return The name of this variable.
-     */
-    public String getVariableName() {
-
-        return variableName;
-    }
-
-    /**
-     * Sets a property on this Javascript object.
-     *
-     * @param propertyName The property name
-     * @param propertyValue The property value.
-     */
-    protected void setProperty(String propertyName, Object propertyValue) {
-        jsObject.setMember(propertyName, propertyValue);
-    }
-
-    /**
-     * Sets a property on this Javascript object for which the value is a
-     * Javascript object itself.
-     *
-     * @param propertyName The name of the property.
-     * @param propertyValue The value of the property.
-     */
-    protected void setProperty(String propertyName, JavascriptObject propertyValue) {
-        jsObject.setMember(propertyName, propertyValue.getJSObject());
-    }
-
-    /**
-     * Sets a property on this Javascript object for which the value is a
-     * JavascriptEnum
-     *
-     * The value is set to what is returned by the getEnumValue() method on the JavascriptEnum
-     *
-     * @param propertyName The name of the property.
-     * @param propertyValue The value of the property.
-     */
-    protected void setProperty(String propertyName, JavascriptEnum propertyValue) {
-        jsObject.setMember(propertyName, propertyValue.getEnumValue());
-    }
-
-
-    /**
      * Get the specified property for this object.
      *
      * @param key The property name
@@ -180,6 +163,7 @@ public class JavascriptObject {
     protected Object getProperty(String key) {
         return checkUndefined(jsObject.getMember(key));
     }
+
 
     /**
      * Gets the property and casts to the appropriate type
@@ -196,6 +180,16 @@ public class JavascriptObject {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Gets the name of this variable within the Javascript runtime
+     *
+     * @return The name of this variable.
+     */
+    public String getVariableName() {
+
+        return variableName;
     }
 
 
@@ -279,31 +273,37 @@ public class JavascriptObject {
 
     }
 
-    /** JSObject will return the String "undefined" at certain times, so we
-     * need to make sure we're not getting a value that looks valid, but isn't.
+    /**
+     * Sets a property on this Javascript object for which the value is a
+     * JavascriptEnum
      *
-     * @param val The value from Javascript to be checked.
-     * @return Either null or the value passed in.
+     * The value is set to what is returned by the getEnumValue() method on the JavascriptEnum
+     *
+     * @param propertyName The name of the property.
+     * @param propertyValue The value of the property.
      */
-    protected Object checkUndefined(Object val) {
-        if (val instanceof String && ((String) val).equals("undefined")) {
-            return null;
-        }
-        return val;
+    protected void setProperty(String propertyName, JavascriptEnum propertyValue) {
+        jsObject.setMember(propertyName, propertyValue.getEnumValue());
     }
 
-    /** Checks a returned Javascript value where we expect a boolean but could
-     * get null.
+    /**
+     * Sets a property on this Javascript object for which the value is a
+     * Javascript object itself.
      *
-     * @param val The value from Javascript to be checked.
-     * @param def The default return value, which can be null.
-     * @return The actual value, or if null, returns false.
+     * @param propertyName The name of the property.
+     * @param propertyValue The value of the property.
      */
-    protected Boolean checkBoolean(Object val, Boolean def) {
-        return (val == null) ? def : (Boolean) val;
+    protected void setProperty(String propertyName, JavascriptObject propertyValue) {
+        jsObject.setMember(propertyName, propertyValue.getJSObject());
     }
 
-    protected Integer checkInteger(Object val, Integer def) {
-        return (val == null) ? def : (Integer) val;
+    /**
+     * Sets a property on this Javascript object.
+     *
+     * @param propertyName The property name
+     * @param propertyValue The property value.
+     */
+    protected void setProperty(String propertyName, Object propertyValue) {
+        jsObject.setMember(propertyName, propertyValue);
     }
 }

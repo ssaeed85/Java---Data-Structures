@@ -34,16 +34,6 @@ public abstract class MapShape extends JavascriptObject {
         super(type, opts);
     }
     
-    /**
-     * This method is called from the GoogleMap.addPolygon() method, 
-     * it should not be invoked directly.
-     *
-     * @param map The map to add this Polygon to.
-     */
-    protected void setMap(GoogleMap map) {
-        invokeJavascript("setMap", map);
-    }
-    
     // LatLngBounds Gets the LatLngBounds of this Circle.
     public LatLongBounds getBounds() {
         return new LatLongBounds((JSObject) invokeJavascript("getBounds"));
@@ -72,6 +62,16 @@ public abstract class MapShape extends JavascriptObject {
     //If set to true, the user can edit this circle by dragging the control points shown at the center and around the circumference of the circle.
     public void setEditable(boolean editable) {
         invokeJavascript("setEditable", editable);
+    }
+    
+    /**
+     * This method is called from the GoogleMap.addPolygon() method, 
+     * it should not be invoked directly.
+     *
+     * @param map The map to add this Polygon to.
+     */
+    protected void setMap(GoogleMap map) {
+        invokeJavascript("setMap", map);
     }
     
     //Hides this circle if set to false.

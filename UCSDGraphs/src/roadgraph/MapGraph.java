@@ -60,12 +60,16 @@ public class MapGraph {
 	public int getNumEdges()
 	{
 		//Returns total number of edges in graph. Accumulates number of out Edges for each node
-		int numEdges = 0;
+		int numEdges = 0;	
 		for(GeographicPoint key : Map.keySet()){
-			numEdges =+ Map.get(key).getNumEdges();
+			numEdges += Map.get(key).getNumEdges();
+			//System.out.print("Debugging: Node: " + key.toString() + " | Edges: " + Map.get(key).getNumEdges());
+			//System.out.println(" | Total Edge Count: " + numEdges);
 		}
+		if (numEdges == 0) 
+			System.out.println("No edges in Map Graph");
 		return numEdges;
-	}	
+	}
 	
 	/** Add a node corresponding to an intersection at a Geographic Point
 	 * If the location is already in the graph or null, this method does 
@@ -102,6 +106,7 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 		//throw error if either locations are in map
+		//System.out.println("Debuggin: Adding edge | From: " + from.toString() + " | To: " + to.toString());
 		if (!Map.containsKey(from) || !Map.containsKey(to)) throw new IllegalArgumentException();
 		//Add out bound edge to map node in graph at 'from' location
 		Map.get(from).addPath(to, roadName, roadType);
@@ -133,7 +138,7 @@ public class MapGraph {
 	{
 		//error printout if either start or goal is null
 		if (start == null || goal == null){
-			System.out.println("Error: Start/Goal is 'null'. No path exists");
+			System.out.println("Error: Start and/or Goal is 'null'. No path exists");
 			return null;			
 		}
 		//ParentMap: key:value pair of node:parent 
@@ -150,41 +155,58 @@ public class MapGraph {
 		}
 	}
 	
-	private static boolean bfsSearch(GeographicPoint start, 
+	/*
+	 *  Actual BFS algorithm to find a path
+	 */
+	private boolean bfsSearch(GeographicPoint start, 
 		     GeographicPoint goal, HashMap<GeographicPoint,GeographicPoint> parentMap){
 		Set<GeographicPoint> vis = new HashSet<GeographicPoint>();
 		Queue<GeographicPoint> q = new LinkedList<GeographicPoint>();
 		boolean found = false;
 		q.add(start);
+		vis.add(start);
 		
 		while(!q.isEmpty()){
 			GeographicPoint curr = q.remove();
-			if(curr==goal){ //if current node is the goal
+			//System.out.println("Debugging: current NODE: " + curr.toString());
+			if(curr.distance(goal) == 0){ //if current node is the goal
 				found = true;
 				break;
 			}
 			else{
-				List<GeographicPoint> neighbors = new MapNode(curr).getNeighbors();
+				List<GeographicPoint> neighbors = Map.get(curr).getNeighbors();
+
 				for(GeographicPoint n : neighbors){ //iterate through neighbors
+					//System.out.print("Debugging: NODE: " + n.toString());
 					if(!vis.contains(n)){			//if visited doesn't contain neighbor
 						vis.add(n);					//add to visited set
 						q.add(n);					//enqueue
+						//System.out.println(" | Added to queue");
 						parentMap.put(n, curr); 	//add to parentMap
 					}
 				}
 			}
+
+			//System.out.println("Debugging: Q at end of loop " + q.toString());
 		}
 		return found;
 	}
-	private static List<GeographicPoint> constructPath(GeographicPoint start, GeographicPoint goal, 
+	
+	/*
+	 *  Returns shortest path found by any search algorithm
+	 */
+	private List<GeographicPoint> constructPath(GeographicPoint start, GeographicPoint goal, 
 			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
 		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
 		GeographicPoint curr = goal;
-		while (curr != start) {
-			path.addFirst(curr);
+		do {
+			//System.out.println("Debugging: current NODE: " + curr.toString());
+			path.addFirst(curr);			//adds node to top of list. Ensure path = start -> goal
 			curr = parentMap.get(curr);
 			nodeSearched.accept(curr);		//need to test implementation
-		}
+			
+		}while (curr.distance(start)!=0);	//adds node to top of list. Ensure path = start -> goal
+		path.addFirst(start);
 		return path;
 	}
 	
@@ -259,10 +281,10 @@ public class MapGraph {
 	public static void main(String[] args)
 	{
 		System.out.print("Making a new map...");
-		MapGraph firstMap = new MapGraph();
-		System.out.print("DONE. \nLoading the map...");
-		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
-		System.out.println("DONE.");
+//		MapGraph firstMap = new MapGraph();
+//		System.out.print("DONE. \nLoading the map...");
+//		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
+//		System.out.println("DONE.");
 		
 		// You can use this method for testing.  
 		
@@ -271,6 +293,33 @@ public class MapGraph {
 		 * the Week 3 End of Week Quiz, EVEN IF you score 100% on the 
 		 * programming assignment.
 		 */
+		
+		MapGraph simpleTestMap = new MapGraph();
+		GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);
+		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
+		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
+		
+		System.out.println("---Graph Loaded---\nTest 1 using simpletest: BFS");
+		List<GeographicPoint> testroute = simpleTestMap.bfs(testStart,testEnd);
+		System.out.println("Route: " +testroute);
+		/*
+		MapGraph testMap = new MapGraph();
+		GraphLoader.loadRoadMap("data/maps/utc.map", testMap);
+		
+		// A very simple test using real data
+		testStart = new GeographicPoint(32.869423, -117.220917);
+		testEnd = new GeographicPoint(32.869255, -117.216927);
+		System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
+		testroute = testMap.dijkstra(testStart,testEnd);
+		testroute2 = testMap.aStarSearch(testStart,testEnd);
+		
+		
+		// A slightly more complex test using real data
+		testStart = new GeographicPoint(32.8674388, -117.2190213);
+		testEnd = new GeographicPoint(32.8697828, -117.2244506);
+		System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
+		testroute = testMap.dijkstra(testStart,testEnd);
+		testroute2 = testMap.aStarSearch(testStart,testEnd);
 		/*
 		MapGraph simpleTestMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);

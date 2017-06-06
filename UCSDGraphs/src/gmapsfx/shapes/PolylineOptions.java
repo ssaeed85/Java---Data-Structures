@@ -31,14 +31,14 @@ public class PolylineOptions extends MapShapeOptions<PolylineOptions> {
     public PolylineOptions() {
     }
     
-    public PolylineOptions path(MVCArray path) {
-        setProperty("path", path);
-        this.path = path;
+    @Override
+    protected PolylineOptions getMe() {
         return this;
     }
 
-    @Override
-    protected PolylineOptions getMe() {
+    public PolylineOptions path(MVCArray path) {
+        setProperty("path", path);
+        this.path = path;
         return this;
     }
     

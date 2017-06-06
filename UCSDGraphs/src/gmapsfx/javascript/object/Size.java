@@ -54,24 +54,24 @@ public class Size extends JavascriptObject {
         super( GMapObjectType.SIZE, width, height, widthUnit, heightUnit );
     }
 
-    public int getWidth() {
-        return getProperty("width", Integer.class);
+    public boolean equals( Size other ) {
+        return invokeJavascriptReturnValue("equals", Boolean.class, other);
     }
 
     public int getHeight() {
         return getProperty("height", Integer.class);
     }
 
-    public String getWidthUnit() {
-        return widthUnit;
-    }
-
     public String getHeightUnit() {
         return heightUnit;
     }
+
+    public int getWidth() {
+        return getProperty("width", Integer.class);
+    }
     
-    public boolean equals( Size other ) {
-        return invokeJavascriptReturnValue("equals", Boolean.class, other);
+    public String getWidthUnit() {
+        return widthUnit;
     }
     
     

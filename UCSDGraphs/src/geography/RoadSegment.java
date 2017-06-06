@@ -37,6 +37,43 @@ public class RoadSegment {
 	}
 	
 	
+	/** Two road segments are equal if they have the same start and end points
+	 *  and they have the same road name.
+	 */
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof RoadSegment)) {
+			return false;
+		}
+		
+		RoadSegment other = (RoadSegment)o;
+		boolean ptsEqual = false;
+		if (other.point1.equals(this.point1) && other.point2.equals(this.point2)) {
+			ptsEqual = true;
+		}
+		if (other.point2.equals(this.point1) && other.point1.equals(this.point2))
+		{
+			ptsEqual = true;
+		}
+		return this.roadName.equals(other.roadName) && ptsEqual && this.length == other.length;
+	}
+	
+	// get the length of the road segment
+	public double getLength() { return this.length; }
+	
+	// given one end, return the other.
+	public geography.GeographicPoint getOtherPoint(geography.GeographicPoint point) {
+		if(point.equals(point1)) {
+			return point2;
+		}
+		if(point.equals(point2)) {
+			return point1;
+		}
+
+		System.out.println("ERROR!! : in RoadSegment::getOtherPoint Neither point matched");
+		return null;
+	}
+	
 	/** Return all of the points from start to end in that order
 	 * on this segment.
 	 * @param start
@@ -65,33 +102,13 @@ public class RoadSegment {
 		
 		return allPoints;
 	}
-	
-	/** Two road segments are equal if they have the same start and end points
-	 *  and they have the same road name.
-	 */
-	public boolean equals(Object o)
-	{
-		if (!(o instanceof RoadSegment)) {
-			return false;
-		}
-		
-		RoadSegment other = (RoadSegment)o;
-		boolean ptsEqual = false;
-		if (other.point1.equals(this.point1) && other.point2.equals(this.point2)) {
-			ptsEqual = true;
-		}
-		if (other.point2.equals(this.point1) && other.point1.equals(this.point2))
-		{
-			ptsEqual = true;
-		}
-		return this.roadName.equals(other.roadName) && ptsEqual && this.length == other.length;
-	}
-	
+
 	// get hashCode
 	public int hashCode()
 	{
 		return point1.hashCode() + point2.hashCode();
 	}
+	
 	
 	// return road segment as String
 	public String toString()
@@ -104,23 +121,6 @@ public class RoadSegment {
 		toReturn += "; " + point2 + "]";
 		
 		return toReturn;
-	}
-
-	// get the length of the road segment
-	public double getLength() { return this.length; }
-	
-	
-	// given one end, return the other.
-	public geography.GeographicPoint getOtherPoint(geography.GeographicPoint point) {
-		if(point.equals(point1)) {
-			return point2;
-		}
-		if(point.equals(point2)) {
-			return point1;
-		}
-
-		System.out.println("ERROR!! : in RoadSegment::getOtherPoint Neither point matched");
-		return null;
 	}
 
 

@@ -36,15 +36,13 @@ public class MarkerOptions extends JavascriptObject {
         super(GMapObjectType.OBJECT);
     }
     
-    public MarkerOptions title( String title ) {
-        setProperty("title", title);
-        this.title = title;
+    public MarkerOptions animation( Animation animation ) {
+        setProperty("animation", animation);
         return this;
     }
     
-    public MarkerOptions visible( Boolean visible ) {
-        setProperty( "visible", visible );
-        this.visible = visible;
+    public MarkerOptions icon( String iconPath ) {
+        setProperty("icon", iconPath);
         return this;
     }
     
@@ -56,13 +54,15 @@ public class MarkerOptions extends JavascriptObject {
     }
     
     
-    public MarkerOptions icon( String iconPath ) {
-        setProperty("icon", iconPath);
+    public MarkerOptions title( String title ) {
+        setProperty("title", title);
+        this.title = title;
         return this;
     }
     
-    public MarkerOptions animation( Animation animation ) {
-        setProperty("animation", animation);
+    public MarkerOptions visible( Boolean visible ) {
+        setProperty( "visible", visible );
+        this.visible = visible;
         return this;
     }
     

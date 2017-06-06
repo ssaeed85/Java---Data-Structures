@@ -31,14 +31,18 @@ public class SelectManager {
     }
 
 
-    public void resetSelect() {
-        markerManager.setSelectMode(true);
-    }
     public void clearSelected() {
     	selectedMarker = null;
     	pointLabel.setItem(null);
     }
+    public GeographicPoint getDestination(){return destinationLabel.getItem();}
 
+    public GeographicPoint getPoint() { return pointLabel.getItem(); }
+
+    public GeographicPoint getStart(){return startLabel.getItem();}
+    public void resetSelect() {
+        markerManager.setSelectMode(true);
+    }
     public void setAndDisplayData(DataSet data) {
     	setDataSet(data);
         //TODO - maybe if markerManager!= null?
@@ -50,28 +54,30 @@ public class SelectManager {
         }
     }
 
-    public void setMarkerManager(MarkerManager manager) { this.markerManager = manager; }
-    public void setPoint(GeographicPoint point, Marker marker) {
-        // System.out.println("inSetPoint.. passed : " + point);
-    	pointLabel.setItem(point);
-        selectedMarker = marker;
-    }
     public void setDataSet(DataSet dataSet) {
     	this.dataSet = dataSet;
     	if(markerManager != null) {
     		markerManager.setDataSet(dataSet);
     	}
     }
-
-    public void setPointLabel(CLabel<GeographicPoint> label) { this.pointLabel = label; }
-    public void setStartLabel(CLabel<GeographicPoint> label) { this.startLabel = label; }
+    public void setDestination() {
+		if(pointLabel.getItem() != null) {
+        	GeographicPoint point = pointLabel.getItem();
+    		destinationLabel.setItem(point);
+    		markerManager.setDestination(point);
+		}
+	}
     public void setDestinationLabel(CLabel<GeographicPoint> label) { this.destinationLabel = label; }
 
-    public GeographicPoint getPoint() { return pointLabel.getItem(); }
+    public void setMarkerManager(MarkerManager manager) { this.markerManager = manager; }
 
 
-	public GeographicPoint getStart(){return startLabel.getItem();}
-	public GeographicPoint getDestination(){return destinationLabel.getItem();}
+	public void setPoint(GeographicPoint point, Marker marker) {
+        // System.out.println("inSetPoint.. passed : " + point);
+    	pointLabel.setItem(point);
+        selectedMarker = marker;
+    }
+	public void setPointLabel(CLabel<GeographicPoint> label) { this.pointLabel = label; }
 	public void setStart() {
 		if(pointLabel.getItem() != null) {
         	GeographicPoint point = pointLabel.getItem();
@@ -80,13 +86,7 @@ public class SelectManager {
 		}
 	}
 
-	public void setDestination() {
-		if(pointLabel.getItem() != null) {
-        	GeographicPoint point = pointLabel.getItem();
-    		destinationLabel.setItem(point);
-    		markerManager.setDestination(point);
-		}
-	}
+	public void setStartLabel(CLabel<GeographicPoint> label) { this.startLabel = label; }
 
 
 

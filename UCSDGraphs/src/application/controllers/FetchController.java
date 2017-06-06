@@ -116,6 +116,43 @@ public class FetchController {
     /**
      * Registers event to fetch data
      */
+    private void setupDisplayButton() {
+    	displayButton.setOnAction( e -> {
+            // System.out.println("In setup display button");
+            DataSet dataSet = dataChoices.getValue();
+
+            // was any dataset selected?
+            if(dataSet == null) {
+    		    Alert alert = new Alert(AlertType.ERROR);
+    			alert.setTitle("Display Error");
+    			alert.setHeaderText("Invalid Action :" );
+    			alert.setContentText("No map file has been selected for display.");
+    			alert.showAndWait();
+            }
+            else if(!dataSet.isDisplayed()) {
+            	// TODO -- only time I need route service ....redo?
+                if(routeService.isRouteDisplayed()) {
+                	routeService.hideRoute();
+                }
+        		generalService.displayIntersections(dataSet);
+
+            }
+            else {
+    		    Alert alert = new Alert(AlertType.INFORMATION);
+    			alert.setTitle("Display Info");
+    			alert.setHeaderText("Intersections Already Displayed" );
+    			alert.setContentText("Data set : " + dataSet.getFilePath() + " has already been loaded.");
+    			alert.showAndWait();
+            }
+
+            // TO TEST : only using test.map for intersections
+        	//generalService.displayIntersections(new DataSet("my.map"));
+    	});
+    }
+
+    /**
+     * Registers event to fetch data
+     */
     private void setupFetchButton() {
     	fetchButton.setOnAction(e -> {
     		String fName = writeFile.getText();
@@ -154,43 +191,6 @@ public class FetchController {
 
     			alert.showAndWait();
     		}
-    	});
-    }
-
-    /**
-     * Registers event to fetch data
-     */
-    private void setupDisplayButton() {
-    	displayButton.setOnAction( e -> {
-            // System.out.println("In setup display button");
-            DataSet dataSet = dataChoices.getValue();
-
-            // was any dataset selected?
-            if(dataSet == null) {
-    		    Alert alert = new Alert(AlertType.ERROR);
-    			alert.setTitle("Display Error");
-    			alert.setHeaderText("Invalid Action :" );
-    			alert.setContentText("No map file has been selected for display.");
-    			alert.showAndWait();
-            }
-            else if(!dataSet.isDisplayed()) {
-            	// TODO -- only time I need route service ....redo?
-                if(routeService.isRouteDisplayed()) {
-                	routeService.hideRoute();
-                }
-        		generalService.displayIntersections(dataSet);
-
-            }
-            else {
-    		    Alert alert = new Alert(AlertType.INFORMATION);
-    			alert.setTitle("Display Info");
-    			alert.setHeaderText("Intersections Already Displayed" );
-    			alert.setContentText("Data set : " + dataSet.getFilePath() + " has already been loaded.");
-    			alert.showAndWait();
-            }
-
-            // TO TEST : only using test.map for intersections
-        	//generalService.displayIntersections(new DataSet("my.map"));
     	});
     }
 

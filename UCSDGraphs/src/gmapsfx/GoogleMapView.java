@@ -38,12 +38,19 @@ import netscape.javascript.JSObject;
  */
 public class GoogleMapView extends AnchorPane {
 
+    public class JSListener {
+
+        public void log(String text) {
+            System.out.println(text);
+        }
+    }
     protected WebView webview;
     protected JavaFxWebEngine webengine;
     protected boolean initialized = false;
     protected final CyclicBarrier barrier = new CyclicBarrier(2);
     protected final List<MapComponentInitializedListener> mapInitializedListeners = new ArrayList<>();
     protected final List<MapReadyListener> mapReadyListeners = new ArrayList<>();
+
     protected GoogleMap map;
 
     public GoogleMapView() {
@@ -154,28 +161,26 @@ public class GoogleMapView extends AnchorPane {
 
     }
 
-    private void mapResized() {
-        if (initialized) {
-            //map.triggerResized();
-//            System.out.println("GoogleMapView.mapResized: triggering resize event");
-            webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
-//            System.out.println("GoogleMapView.mapResized: triggering resize event done");
+    public void addMapInitializedListener(MapComponentInitializedListener listener) {
+        synchronized (mapInitializedListeners) {
+            mapInitializedListeners.add(listener);
         }
     }
 
-    public void setZoom(int zoom) {
-        checkInitialized();
-        map.setZoom(zoom);
+    public void addMapReadyListener(MapReadyListener listener) {
+        synchronized (mapReadyListeners) {
+            mapReadyListeners.add(listener);
+        }
     }
 
-    public void setCenter(double latitude, double longitude) {
-        checkInitialized();
-        LatLong latLong = new LatLong(latitude, longitude);
-        map.setCenter(latLong);
+    protected void checkInitialized() {
+        if (!initialized) {
+            throw new MapNotInitializedException();
+        }
     }
 
-    public GoogleMap getMap() {
-        checkInitialized();
+    public GoogleMap createMap() {
+        map = new GoogleMap();
         return map;
     }
 
@@ -192,51 +197,9 @@ public class GoogleMapView extends AnchorPane {
         return map;
     }
 
-    public GoogleMap createMap() {
-        map = new GoogleMap();
-        return map;
-    }
-
-    public void addMapInitializedListener(MapComponentInitializedListener listener) {
-        synchronized (mapInitializedListeners) {
-            mapInitializedListeners.add(listener);
-        }
-    }
-
-    public void removeMapInitializedListener(MapComponentInitializedListener listener) {
-        synchronized (mapInitializedListeners) {
-            mapInitializedListeners.remove(listener);
-        }
-    }
-
-    public void addMapReadyListener(MapReadyListener listener) {
-        synchronized (mapReadyListeners) {
-            mapReadyListeners.add(listener);
-        }
-    }
-
-    public void removeReadyListener(MapReadyListener listener) {
-        synchronized (mapReadyListeners) {
-            mapReadyListeners.remove(listener);
-        }
-    }
-
-    public Point2D fromLatLngToPoint(LatLong loc) {
-        checkInitialized();
-        return map.fromLatLngToPoint(loc);
-    }
-
-    public void panBy(double x, double y) {
-        checkInitialized();
-        map.panBy(x, y);
-    }
-
-    protected void init() {
-
-    }
-
-    protected void setInitialized(boolean initialized) {
-        this.initialized = initialized;
+    protected JSObject executeJavascript(String function) {
+        Object returnObject = webengine.executeScript(function);
+        return (JSObject) returnObject;
     }
 
     protected void fireMapInitializedListeners() {
@@ -255,9 +218,9 @@ public class GoogleMapView extends AnchorPane {
         }
     }
 
-    protected JSObject executeJavascript(String function) {
-        Object returnObject = webengine.executeScript(function);
-        return (JSObject) returnObject;
+    public Point2D fromLatLngToPoint(LatLong loc) {
+        checkInitialized();
+        return map.fromLatLngToPoint(loc);
     }
 
     protected String getJavascriptMethod(String methodName, Object... args) {
@@ -271,21 +234,58 @@ public class GoogleMapView extends AnchorPane {
         return sb.toString();
     }
 
-    protected void checkInitialized() {
-        if (!initialized) {
-            throw new MapNotInitializedException();
-        }
-    }
-
-    public class JSListener {
-
-        public void log(String text) {
-            System.out.println(text);
-        }
+    public GoogleMap getMap() {
+        checkInitialized();
+        return map;
     }
 
     public WebView getWebView() {
     	return this.webview;
+    }
+
+    protected void init() {
+
+    }
+
+    private void mapResized() {
+        if (initialized) {
+            //map.triggerResized();
+//            System.out.println("GoogleMapView.mapResized: triggering resize event");
+            webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
+//            System.out.println("GoogleMapView.mapResized: triggering resize event done");
+        }
+    }
+
+    public void panBy(double x, double y) {
+        checkInitialized();
+        map.panBy(x, y);
+    }
+
+    public void removeMapInitializedListener(MapComponentInitializedListener listener) {
+        synchronized (mapInitializedListeners) {
+            mapInitializedListeners.remove(listener);
+        }
+    }
+
+    public void removeReadyListener(MapReadyListener listener) {
+        synchronized (mapReadyListeners) {
+            mapReadyListeners.remove(listener);
+        }
+    }
+
+    public void setCenter(double latitude, double longitude) {
+        checkInitialized();
+        LatLong latLong = new LatLong(latitude, longitude);
+        map.setCenter(latLong);
+    }
+
+    protected void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
+
+    public void setZoom(int zoom) {
+        checkInitialized();
+        map.setZoom(zoom);
     }
 
 }

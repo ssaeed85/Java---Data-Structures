@@ -60,6 +60,12 @@ public class MapOptions extends JavascriptObject {
         return this;
     }
     
+    public MapOptions mapTypeControl( boolean mapTypeControl ) {
+        setProperty( "mapTypeControl", mapTypeControl);
+        this.mapTypeControl = mapTypeControl;
+        return this;
+    }
+    
     public MapOptions overviewMapControl( boolean overviewMapControl ) {
         setProperty("overviewMapControl", overviewMapControl );
         this.overviewMapControl = overviewMapControl;
@@ -99,12 +105,6 @@ public class MapOptions extends JavascriptObject {
     public MapOptions zoomControl( boolean zoomControl ) {
         setProperty( "zoomControl", zoomControl );
         this.zoomControl = zoomControl;
-        return this;
-    }
-    
-    public MapOptions mapTypeControl( boolean mapTypeControl ) {
-        setProperty( "mapTypeControl", mapTypeControl);
-        this.mapTypeControl = mapTypeControl;
         return this;
     }
     

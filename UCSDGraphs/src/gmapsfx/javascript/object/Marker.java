@@ -40,16 +40,23 @@ public class Marker extends JavascriptObject {
     }
 
 
+    public MarkerOptions getMarkerOptions() {
+		return this.markerOptions;
+	}
+
+
+
+
+    public boolean getVisible() {
+		return invokeJavascriptReturnValue("getVisible", Boolean.class );
+	}
     /**
-     * Sets the title of this Marker
-     * @param title The Marker's new title
+     * Sets how the marker should be animated.  To clear the animation use Animation.NULL
+     * @param animation The animation to use for this marker.
      */
-    public void setTitle( String title ) {
-        invokeJavascript("setTitle", title);
-        this.title = title;
+    public void setAnimation( Animation animation ) {
+        invokeJavascript("setAnimation", animation);
     }
-
-
 
 
     // TODO -- take this out ?
@@ -61,6 +68,7 @@ public class Marker extends JavascriptObject {
         invokeJavascript("setIcon", icon);
         getMarkerOptions().icon = icon;
     }
+
     /**
      * This method is called from the GoogleMap.addMarker() method, it should not be invoked directly.
      *
@@ -70,37 +78,29 @@ public class Marker extends JavascriptObject {
         invokeJavascript("setMap", map);
     }
 
+    public void setOptions(MarkerOptions markerOptions2) {
+		invokeJavascript("setOptions", markerOptions2);
+	}
 
-    /**
-     * Sets how the marker should be animated.  To clear the animation use Animation.NULL
-     * @param animation The animation to use for this marker.
-     */
-    public void setAnimation( Animation animation ) {
-        invokeJavascript("setAnimation", animation);
-    }
-
-    public void setZIndex(double index) {
-    	invokeJavascript("setZIndex", index);
-    }
-
-    public void setPosition( LatLong latLong ) {
+	public void setPosition( LatLong latLong ) {
         invokeJavascript( "setPosition", latLong );
     }
 
-	public void setOptions(MarkerOptions markerOptions2) {
-		invokeJavascript("setOptions", markerOptions2);
-	}
+	/**
+     * Sets the title of this Marker
+     * @param title The Marker's new title
+     */
+    public void setTitle( String title ) {
+        invokeJavascript("setTitle", title);
+        this.title = title;
+    }
 
 	public void setVisible(boolean visible) {
 		invokeJavascript("setVisible", visible);
 	}
 
-	public boolean getVisible() {
-		return invokeJavascriptReturnValue("getVisible", Boolean.class );
-	}
-
-	public MarkerOptions getMarkerOptions() {
-		return this.markerOptions;
-	}
+	public void setZIndex(double index) {
+    	invokeJavascript("setZIndex", index);
+    }
 
 }
