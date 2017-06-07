@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<item value="false" key="SortMembers.sort_all"/>
 	<section name="org.eclipse.jdt.internal.ui.packageview.PackageExplorerPart">
 		<item value="2" key="layout"/>
 		<item value="true" key="group_libraries"/>
@@ -9,6 +10,8 @@
 	</section>
 	<section name="ClasspathContainerSelectionPage">
 		<item value="1" key="index"/>
+	</section>
+	<section name="OptionalMessageDialog.hide.">
 	</section>
 	<section name="BuildPathsPropertyPage">
 		<item value="0" key="pageIndex"/>

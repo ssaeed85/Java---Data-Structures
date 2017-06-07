@@ -203,3 +203,13 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY org.eclipse.equinox.ds 1 0 2017-06-05 11:07:12.979
 !MESSAGE Could not bind a reference of component org.eclipse.fx.ide.css.cssext.ui.internal.DefaultCssExtProvider. The reference is: Reference[name = ICSSExtModelProvider, interface = org.eclipse.fx.ide.css.cssext.ICSSExtModelProvider, policy = dynamic, cardinality = 0..n, target = null, bind = bindCssExtensionModelProvider, unbind = unbindCssExtensionModelProvider]
+
+!ENTRY org.eclipse.core.jobs 4 2 2017-06-06 12:08:00.625
+!MESSAGE An internal error occurred during: "Updating Git status for repository Java - 2nd course".
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.egit.core.internal.indexdiff.IndexDiffCacheEntry.getRepository(IndexDiffCacheEntry.java:184)
+	at org.eclipse.egit.core.internal.indexdiff.IndexDiffCacheEntry.access$1(IndexDiffCacheEntry.java:179)
+	at org.eclipse.egit.core.internal.indexdiff.IndexDiffCacheEntry$5.updateIndexDiff(IndexDiffCacheEntry.java:524)
+	at org.eclipse.egit.core.internal.indexdiff.IndexDiffUpdateJob.run(IndexDiffUpdateJob.java:75)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)

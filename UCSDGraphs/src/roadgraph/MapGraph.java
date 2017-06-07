@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import geography.GeographicPoint;
 import util.GraphLoader;
-import week3example.MazeNode;
+//import week3example.MazeNode;
 
 /**
  * @author UCSD MOOC development team and YOU
