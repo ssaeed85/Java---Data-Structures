@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import geography.GeographicPoint;
 import util.GraphLoader;
-//import week3example.MazeNode;
 
 /**
  * @author UCSD MOOC development team and YOU
@@ -63,8 +62,6 @@ public class MapGraph {
 		int numEdges = 0;	
 		for(GeographicPoint key : Map.keySet()){
 			numEdges += Map.get(key).getNumEdges();
-			//System.out.print("Debugging: Node: " + key.toString() + " | Edges: " + Map.get(key).getNumEdges());
-			//System.out.println(" | Total Edge Count: " + numEdges);
 		}
 		if (numEdges == 0) 
 			System.out.println("No edges in Map Graph");
@@ -106,13 +103,12 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 		//throw error if either locations are in map
-		//System.out.println("Debuggin: Adding edge | From: " + from.toString() + " | To: " + to.toString());
-		if (!Map.containsKey(from) || !Map.containsKey(to)) throw new IllegalArgumentException();
+		if (!Map.containsKey(from) || !Map.containsKey(to) || from == null || to == null) throw new IllegalArgumentException();
 		//Add out bound edge to map node in graph at 'from' location
 		Map.get(from).addPath(to, roadName, roadType);
 	}
 	
-/** Find the path from start to goal using breadth first search
+	/** Find the path from start to goal using breadth first search
 	 * 
 	 * @param start The starting location
 	 * @param goal The goal location
@@ -144,8 +140,6 @@ public class MapGraph {
 		//ParentMap: key:value pair of node:parent 
 		HashMap<GeographicPoint,GeographicPoint> parentMap = new HashMap<GeographicPoint,GeographicPoint>();
 
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
 		if(!bfsSearch(start, goal, parentMap)){
 			System.out.println("No path found");
 			return null;
@@ -168,7 +162,6 @@ public class MapGraph {
 		
 		while(!q.isEmpty()){
 			GeographicPoint curr = q.remove();
-			//System.out.println("Debugging: current NODE: " + curr.toString());
 			if(curr.distance(goal) == 0){ //if current node is the goal
 				found = true;
 				break;
@@ -177,17 +170,13 @@ public class MapGraph {
 				List<GeographicPoint> neighbors = Map.get(curr).getNeighbors();
 
 				for(GeographicPoint n : neighbors){ //iterate through neighbors
-					//System.out.print("Debugging: NODE: " + n.toString());
 					if(!vis.contains(n)){			//if visited doesn't contain neighbor
 						vis.add(n);					//add to visited set
 						q.add(n);					//enqueue
-						//System.out.println(" | Added to queue");
 						parentMap.put(n, curr); 	//add to parentMap
 					}
 				}
 			}
-
-			//System.out.println("Debugging: Q at end of loop " + q.toString());
 		}
 		return found;
 	}
@@ -204,8 +193,7 @@ public class MapGraph {
 			path.addFirst(curr);			//adds node to top of list. Ensure path = start -> goal
 			curr = parentMap.get(curr);
 			nodeSearched.accept(curr);		//need to test implementation
-			
-		}while (curr.distance(start)!=0);	//adds node to top of list. Ensure path = start -> goal
+		} while (curr.distance(start)!=0);	//adds node to top of list. Ensure path = start -> goal
 		path.addFirst(start);
 		return path;
 	}
@@ -236,12 +224,74 @@ public class MapGraph {
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
 										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 4
+		//error printout if either start or goal is null
+		if (start == null || goal == null){
+			System.out.println("Error: Start and/or Goal is 'null'. No path exists");
+			return null;			
+		}
+		//ParentMap: key:value pair of node:parent 
+		HashMap<GeographicPoint,GeographicPoint> parentMap = new HashMap<GeographicPoint,GeographicPoint>();
 
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+		if(!dijkstraSearch(start, goal, parentMap)){
+			System.out.println("No path found");
+			return null;
+		}
+		else{
+			return constructPath(start, goal, parentMap, nodeSearched);
+		}
+	}
+	
+	/*
+	 *  The actual dijkstra serach algorithm
+	 */
+	public boolean dijkstraSearch(GeographicPoint start, 
+		     GeographicPoint goal, HashMap<GeographicPoint,GeographicPoint> parentMap){
+		Set<GeographicPoint> vis = new HashSet<GeographicPoint>();
+		GeographicPoint curr = new GeographicPoint(0,0);
 		
-		return null;
+		//Priority Queue compares distance from current geo point to other geographic point. Note edge has to exist
+		PriorityQueue<GeographicPoint> q= new PriorityQueue<GeographicPoint>(10, new Comparator<GeographicPoint>(){
+		    public int compare(GeographicPoint one, GeographicPoint two) {
+		        if (Map.get(one).getDist() < Map.get(two).getDist()) return -1;
+		        if (Map.get(one).getDist() > Map.get(two).getDist()) return 1;
+		        return 0;
+		    }
+		});
+		
+		boolean found = false;
+		Map.get(start).setDist(0.0);
+		q.add(start);
+		vis.add(start);
+				
+		for(GeographicPoint key: Map.keySet())	Map.get(key).initDistance();		//Initialize all nodes to infinity
+		
+		while(!q.isEmpty()){
+			curr = q.remove();
+			if(curr.distance(goal) == 0){ //if current node is the goal
+				found = true;
+				break;
+			}
+			else{
+				dijkstraManageQandSet(curr,vis,q,parentMap);
+			}
+		}
+		return found;	
+	}
+	
+	/*
+	 * Adds geographic points to priority queue and visited set and updates parent Map
+	 */
+	public void dijkstraManageQandSet(GeographicPoint curr,Set<GeographicPoint> vis,
+			PriorityQueue<GeographicPoint> q,HashMap<GeographicPoint,GeographicPoint> parentMap){
+		List<GeographicPoint> neighbors = Map.get(curr).getNeighbors();
+		for(GeographicPoint n : neighbors){ //iterate through neighbors
+			if(!vis.contains(n)){			//if visited doesn't contain neighbor
+				vis.add(n);					//add to visited set
+				Map.get(n).setDist(Map.get(curr).getDistanceTo(n));	//set distance var in node to distance from curr to node
+				q.add(n);					//enqueue
+				parentMap.put(n, curr); 	//add to parentMap
+			}
+		}
 	}
 
 	/** Find the path from start to goal using A-Star search
@@ -268,14 +318,75 @@ public class MapGraph {
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
 											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 4
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
-		
-		return null;
+		if (start == null || goal == null){
+			System.out.println("Error: Start and/or Goal is 'null'. No path exists");
+			return null;			
+		}
+		//ParentMap: key:value pair of node:parent 
+		HashMap<GeographicPoint,GeographicPoint> parentMap = new HashMap<GeographicPoint,GeographicPoint>();
+
+		if(!dijkstraSearch(start, goal, parentMap)){
+			System.out.println("No path found");
+			return null;
+		}
+		else{
+			return constructPath(start, goal, parentMap, nodeSearched);
+		}
 	}
 
+	/*
+	 *  Actual implementation of the aStar search algorithm
+	 */
+	public boolean aStarSearchAndManage(GeographicPoint start, 
+		     GeographicPoint goal, HashMap<GeographicPoint,GeographicPoint> parentMap){
+		Set<GeographicPoint> vis = new HashSet<GeographicPoint>();
+		GeographicPoint curr = new GeographicPoint(0,0);
+		
+		//Priority Queue compares distance from current geo point to other geographic point. Note edge has to exist
+		PriorityQueue<GeographicPoint> q= new PriorityQueue<GeographicPoint>(10, new Comparator<GeographicPoint>(){
+		    public int compare(GeographicPoint one, GeographicPoint two) {
+		        if (Map.get(one).getDist()+goal.distance(one) < Map.get(two).getDist()+goal.distance(two)) return -1;
+		        if (Map.get(one).getDist()+goal.distance(one) > Map.get(two).getDist()+goal.distance(two)) return 1;
+		        return 0;
+		    }
+		});
+		
+		boolean found = false;
+		Map.get(start).setDist(0.0);
+		q.add(start);
+		vis.add(start);
+				
+		for(GeographicPoint key: Map.keySet())	Map.get(key).initDistance();		//Initialize all nodes to infinity
+		
+		while(!q.isEmpty()){
+			curr = q.remove();
+			if(curr.distance(goal) == 0){ //if current node is the goal
+				found = true;
+				break;
+			}
+			else{
+				aStarManageQandSet(curr,vis,q,parentMap);
+			}
+		}
+		return found;	
+	}
+	
+	/*
+	 * Logic to manage the priority queue and visited set for the aStart search algorithm
+	 */
+	public void aStarManageQandSet(GeographicPoint curr,Set<GeographicPoint> vis,
+			PriorityQueue<GeographicPoint> q,HashMap<GeographicPoint,GeographicPoint> parentMap){
+		List<GeographicPoint> neighbors = Map.get(curr).getNeighbors();
+		for(GeographicPoint n : neighbors){ //iterate through neighbors
+			if(!vis.contains(n)){			//if visited doesn't contain neighbor
+				vis.add(n);					//add to visited set
+				Map.get(n).setDist(Map.get(curr).getDistanceTo(n));	//set distance var in node to distance from curr to node
+				q.add(n);					//enqueue
+				parentMap.put(n, curr); 	//add to parentMap
+			}
+		}
+	}
 	
 	
 	public static void main(String[] args)
@@ -302,6 +413,15 @@ public class MapGraph {
 		System.out.println("---Graph Loaded---\nTest 1 using simpletest: BFS");
 		List<GeographicPoint> testroute = simpleTestMap.bfs(testStart,testEnd);
 		System.out.println("Route: " +testroute);
+		
+		
+		List<GeographicPoint> testroute2 = simpleTestMap.dijkstra(testStart,testEnd);
+		System.out.println("Route: " +testroute2);
+		
+
+		List<GeographicPoint> testroute3 = simpleTestMap.aStarSearch(testStart,testEnd);
+		System.out.println("Route: " +testroute3);
+		
 		/*
 		MapGraph testMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/maps/utc.map", testMap);
@@ -312,6 +432,7 @@ public class MapGraph {
 		System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
 		testroute = testMap.dijkstra(testStart,testEnd);
 		testroute2 = testMap.aStarSearch(testStart,testEnd);
+		System.out.println("Route: " +testroute2);
 		
 		
 		// A slightly more complex test using real data
@@ -320,6 +441,7 @@ public class MapGraph {
 		System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
 		testroute = testMap.dijkstra(testStart,testEnd);
 		testroute2 = testMap.aStarSearch(testStart,testEnd);
+		System.out.println("Route: " +testroute2);
 		/*
 		MapGraph simpleTestMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);

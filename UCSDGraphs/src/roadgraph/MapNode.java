@@ -6,10 +6,16 @@ import geography.GeographicPoint;
 public class MapNode {
 	private GeographicPoint loc;
 	private HashMap<GeographicPoint,MapEdge> adjList; //List of out-Neighbors
+	private double dist;
 	
 	public MapNode(GeographicPoint loc){
 		this.loc = loc;
 		this.adjList = new HashMap<GeographicPoint,MapEdge>();
+		initDistance();
+	}
+	
+	public void initDistance(){
+		this.dist = Double.POSITIVE_INFINITY;
 	}
 	
 	public GeographicPoint getLoc(){
@@ -26,6 +32,18 @@ public class MapNode {
 	
 	public int getNumEdges(){
 		return adjList.size();
+	}
+	
+	public void setDist(double d){
+		this.dist = d;
+	}
+	
+	public double getDist(){
+		return this.dist;
+	}
+	
+	public double getDistanceTo(GeographicPoint g){
+		return adjList.get(g).getLength();
 	}
 	
 	public void addPath(GeographicPoint other, String name, String type){

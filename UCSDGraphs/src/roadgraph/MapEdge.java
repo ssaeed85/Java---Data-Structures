@@ -25,6 +25,10 @@ public class MapEdge {
 		return end;
 	}
 	
+	public double getLength(){
+		return length;
+	}
+	
 	public String toString(){
 		return ("Map Ege Info | Name: " + name + "| Type: " + type + "| Start: " + start.toString() + 
 				"| End: " + end.toString() + "| Length: " + length);
